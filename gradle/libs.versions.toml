@@ -15,6 +15,7 @@ compose-multiplatform = "1.7.0"
 junit = "4.13.2"
 kotlin = "2.1.10"
 extensionsComposeJetbrains = "3.3.0"
+uiTextGoogleFonts = "1.7.8"
 
 [libraries]
 decompose-jetbrains = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "extensionsComposeJetbrains" }
@@ -30,6 +31,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

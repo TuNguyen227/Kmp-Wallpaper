@@ -46,7 +46,7 @@ kotlin {
 
             implementation(projects.kmpCore.coreLibrary)
             implementation(coreLibs.navigation.decompose)
-            implementation(libs.decompose.jetbrains)
+            implementation(coreLibs.decompose.extension)
         }
     }
 }
@@ -85,6 +85,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.ui.text.google.fonts)
     debugImplementation(compose.uiTooling)
 }
 

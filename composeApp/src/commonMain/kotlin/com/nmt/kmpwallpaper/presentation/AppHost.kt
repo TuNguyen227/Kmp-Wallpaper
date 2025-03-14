@@ -10,10 +10,16 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.arkivanov.decompose.value.getValue
 import com.nmt.kmpcore.presentation.navigation.RootComponent
 import com.nmt.kmpwallpaper.presentation.home.HomeScreen
+import com.nmt.kmpwallpaper.theme.DarkColorScheme
+import com.nmt.kmpwallpaper.theme.LightColorScheme
+import com.nmt.kmpwallpaper.theme.getTypography
 
 @Composable
 fun AppHost(root: RootComponent) {
-    MaterialTheme {
+    MaterialTheme(
+        colorScheme = LightColorScheme,
+        typography = getTypography()
+    ) {
         val childStack by root.childStack.subscribeAsState()
         Children(
             stack = childStack,
