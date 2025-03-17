@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    kotlin("plugin.serialization") version "2.1.10"
 }
 
 kotlin {
@@ -37,13 +38,15 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
 
             implementation(projects.kmpCore.coreLibrary)
             implementation(coreLibs.navigation.decompose)
             implementation(coreLibs.decompose.extension)
+            implementation(libs.decompose.coroutines)
+//            implementation(libs.coil.network.okhttp)
+            implementation(libs.landscapist.coil3)
         }
     }
 }
@@ -79,9 +82,5 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-}
-
-dependencies {
-    debugImplementation(compose.uiTooling)
 }
 
