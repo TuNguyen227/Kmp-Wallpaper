@@ -9,11 +9,17 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.arkivanov.decompose.value.getValue
 import com.nmt.kmpcore.presentation.navigation.RootComponent
+import com.nmt.kmpcore.presentation.theme.getLightColorScheme
+import com.nmt.kmpcore.presentation.theme.getTypography
+import com.nmt.kmpwallpaper.presentation.flash.FlashScreenRoute
 import com.nmt.kmpwallpaper.presentation.home.HomeScreen
 
 @Composable
 fun AppHost(root: RootComponent) {
-    MaterialTheme {
+    MaterialTheme(
+        colorScheme = getLightColorScheme(),
+        typography = getTypography()
+    ) {
         val childStack by root.childStack.subscribeAsState()
         Children(
             stack = childStack,
@@ -22,6 +28,19 @@ fun AppHost(root: RootComponent) {
             when(val instance = child.instance) {
                 is Child.Home -> HomeScreen(
                     instance.component
+                )
+                is Child.FlashScreen -> FlashScreenRoute(
+                    component = instance.component,
+                    onNavigate = { config ->
+                        root.navigate(
+                            configuration = config,
+                            onComplete = {
+                                if (it) {
+                                    instance.component.resetState()
+                                }
+                            }
+                        )
+                    }
                 )
             }
         }

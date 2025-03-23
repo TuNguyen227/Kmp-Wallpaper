@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    kotlin("plugin.serialization") version "2.1.10"
+    id("com.google.gms.google-services") version "4.4.2"
 }
 
 kotlin {
@@ -22,6 +24,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            export(projects.kmpCore.coreLibrary)
         }
     }
     
@@ -30,6 +33,8 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.common.ktx)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -37,13 +42,17 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
 
             implementation(projects.kmpCore.coreLibrary)
             implementation(coreLibs.navigation.decompose)
             implementation(coreLibs.decompose.extension)
+            implementation(libs.decompose.coroutines)
+//            implementation(libs.coil.network.okhttp)
+            implementation(libs.landscapist.coil3)
+            implementation(libs.firebase.database)
+            implementation(libs.firebase.common)
         }
     }
 }
@@ -79,9 +88,5 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-}
-
-dependencies {
-    debugImplementation(compose.uiTooling)
 }
 

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "981794024045",
+    "firebase_url": "https://kmpwallpaper-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "kmpwallpaper",
+    "storage_bucket": "kmpwallpaper.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:981794024045:android:69292396a7007abdce2d64",
+        "android_client_info": {
+          "package_name": "com.nmt.kmpwallpaper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD30LffHFngORCFl6LiLYSvqOnzNB8Bi4I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
