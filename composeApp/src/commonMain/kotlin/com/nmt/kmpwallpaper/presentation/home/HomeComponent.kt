@@ -26,10 +26,9 @@ import org.koin.core.component.inject
 class HomeComponent(
     componentContext: ComponentContext,
     private val imageRepository: ImageRepository
-) : ScreenComponent,IHomeComponent, KoinComponent, ComponentContext by componentContext  {
+) : ScreenComponent, KoinComponent, ComponentContext by componentContext  {
     private val _uiState = MutableValue(HomeUiState())
     val uiState : Value<HomeUiState> = _uiState
-    val trendingComponent = TrendingComponent(componentContext)
     private val firebaseDatabase by inject<FirebaseDatabase>()
     private var query: String = ""
     private val scope = coroutineScope()
@@ -131,25 +130,5 @@ class HomeComponent(
                 it.copy(images = photos)
             }
         }
-    }
-
-    class Factory(
-        private val imageRepository: ImageRepository
-    ) : IHomeComponent.Factory {
-        override fun invoke(componentContext: ComponentContext): HomeComponent {
-            return HomeComponent(
-                componentContext = componentContext,
-                imageRepository = imageRepository
-            )
-        }
-    }
-
-}
-
-interface IHomeComponent {
-    fun interface Factory {
-        operator fun invoke(
-            componentContext: ComponentContext,
-        ) : HomeComponent
     }
 }

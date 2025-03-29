@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import kotlin.math.exp
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -15,7 +16,9 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-    
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
     listOf(
         iosX64(),
         iosArm64(),
@@ -45,14 +48,23 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
 
-            implementation(projects.kmpCore.coreLibrary)
+            api(projects.kmpCore.coreLibrary)
             implementation(coreLibs.navigation.decompose)
             implementation(coreLibs.decompose.extension)
             implementation(libs.decompose.coroutines)
-//            implementation(libs.coil.network.okhttp)
             implementation(libs.landscapist.coil3)
             implementation(libs.firebase.database)
             implementation(libs.firebase.common)
+            implementation(libs.platform.kore)
+            implementation(libs.coil.compose)
+        }
+    }
+
+    targets.configureEach {
+        compilations.configureEach {
+            compilerOptions.configure {
+                freeCompilerArgs.addAll("-Xexpect-actual-classes")
+            }
         }
     }
 }

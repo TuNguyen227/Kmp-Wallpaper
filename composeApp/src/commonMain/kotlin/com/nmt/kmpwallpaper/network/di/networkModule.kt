@@ -10,7 +10,7 @@ import org.koin.dsl.module
 fun provideAppNetworkModule() = module {
     single<HttpClient> {
         BaseHttpClientBuilder()
-            .host("api.pexels.com/v1")
+            .host("api.pexels.com")
             .build(
                 headers = {
                     header("Authorization","tJpnAKL7IAJlE9lS6P7cjMtDRnMyz0Bltvj2R00qo5pNMlFB610qvfLw")

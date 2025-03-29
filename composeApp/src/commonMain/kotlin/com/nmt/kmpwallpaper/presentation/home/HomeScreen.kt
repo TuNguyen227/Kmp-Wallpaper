@@ -15,13 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
@@ -38,7 +33,6 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -53,11 +47,7 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.nmt.kmpwallpaper.composeApp.commonMain.Res
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_drawer
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_new
-import com.nmt.kmpwallpaper.composeApp.commonMain.ic_notification
-import com.nmt.kmpwallpaper.composeApp.commonMain.ic_privacy
-import com.nmt.kmpwallpaper.composeApp.commonMain.ic_rating
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_recent
-import com.nmt.kmpwallpaper.composeApp.commonMain.ic_term_conditions
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_trending
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_wallpaper
 import com.nmt.kmpwallpaper.model.Photo
@@ -66,7 +56,6 @@ import com.nmt.kmpwallpaper.presentation.component.CardItem
 import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.DrawerBody
 import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.DrawerHeader
 import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.Settings
-import com.nmt.kmpwallpaper.presentation.home.page.Page
 import com.nmt.kmpwallpaper.presentation.home.page.trending.TrendingPage
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
@@ -75,7 +64,8 @@ import org.jetbrains.compose.resources.vectorResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    component: HomeComponent
+    component: HomeComponent,
+    onPhotoClick:(Photo) -> Unit
 ) {
     val uiState by component.uiState.subscribeAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -142,7 +132,8 @@ fun HomeScreen(
                 modifier = Modifier.padding(top = it.calculateTopPadding()),
                 photos = uiState.images,
                 categories = uiState.categories,
-                onCategoryClick = component::onCategoryClick
+                onCategoryClick = component::onCategoryClick,
+                onPhotoClick = onPhotoClick
             )
         }
     }
@@ -154,7 +145,8 @@ private fun HomeContent(
     modifier: Modifier = Modifier,
     photos: List<Photo>,
     categories: List<Photo>,
-    onCategoryClick:(Photo) -> Unit
+    onCategoryClick:(Photo) -> Unit,
+    onPhotoClick: (Photo) -> Unit
 ) {
     val pages by homeComponent.page.subscribeAsState()
     Column(
@@ -231,13 +223,13 @@ private fun HomeContent(
             ChildPages(
                 pages = pages,
                 onPageSelected = homeComponent::selectPage
-            ) { index, page ->
+            ) { index, _ ->
                 when(index) {
                     0 -> {
                         TrendingPage(
                             photos = photos,
                             onLikeClick = {},
-                            onItemClick = {},
+                            onItemClick = onPhotoClick,
                             state = photoScrollState
                         )
                     }
