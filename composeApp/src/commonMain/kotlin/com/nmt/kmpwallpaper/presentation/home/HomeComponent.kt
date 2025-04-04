@@ -8,6 +8,7 @@ import com.arkivanov.decompose.router.pages.select
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
+import com.arkivanov.essenty.instancekeeper.getOrCreate
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.nmt.kmpwallpaper.data.ImageRepository
 import com.nmt.kmpwallpaper.model.Photo
@@ -18,6 +19,8 @@ import com.nmt.kmpwallpaper.presentation.home.page.Page
 import com.nmt.kmpwallpaper.presentation.home.page.PageConfiguration
 import com.nmt.kmpwallpaper.presentation.home.page.recent.RecentComponent
 import com.nmt.kmpwallpaper.presentation.home.page.trending.TrendingComponent
+import com.nmt.kmpwallpaper.presentation.photodetail.factory.DefaultPhotoFactory
+import com.nmt.kmpwallpaper.presentation.photodetail.factory.PhotoFactory
 import dev.gitlive.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -75,6 +78,7 @@ class HomeComponent(
             }
         }
     }
+    val scrollState = MutableValue(Pair(0,0))
 
     fun selectPage(index: Int, onComplete: () -> Unit = {} ) {
         pageNavigation.select(index = index, onComplete = { _,_ ->

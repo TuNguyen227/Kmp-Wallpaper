@@ -6,13 +6,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +52,8 @@ import com.nmt.kmpwallpaper.composeApp.commonMain.Res
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_back
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_painter
 import com.nmt.kmpwallpaper.model.Photo
+import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.DrawerBody
+import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.Settings
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.vectorResource
 
@@ -69,6 +74,7 @@ fun PhotoDetailRoute(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhotoDetailScreen(
     component: PhotoDetailComponent,
@@ -83,6 +89,9 @@ fun PhotoDetailScreen(
         val localDensity = LocalDensity.current
         var centerBottomPosition by remember {
             mutableStateOf(Offset.Zero)
+        }
+        var isHandlePhoto by remember {
+            mutableStateOf(false)
         }
         Icon(
             modifier = Modifier.padding(start = 16.dp, top = 16.dp)
@@ -118,13 +127,35 @@ fun PhotoDetailScreen(
                 )
                 .clip(CircleShape)
                 .clickable {
-                    onHandlePhoto()
+                    //onHandlePhoto()
+                    isHandlePhoto = true
                 }
             ,
             imageVector = vectorResource(Res.drawable.ic_painter),
             contentDescription = "Icon back",
             tint = Color.Unspecified
         )
+
+        if (isHandlePhoto) {
+            ModalBottomSheet(
+                onDismissRequest = {},
+                contentColor = MaterialTheme.colorScheme.background,
+                dragHandle = null
+            ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+//                    val options = listOf(
+//                        Settings("Set on home screen"),
+//                        "Set on lock screen",
+//                        "Set on both screen"
+//                    )
+//
+//                    DrawerBody(
+//                        items = options,
+//
+//                    )
+                }
+            }
+        }
     }
 }
 

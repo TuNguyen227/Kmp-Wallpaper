@@ -1,6 +1,5 @@
 package com.nmt.kmpwallpaper.presentation.home
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,14 +8,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
@@ -31,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,6 +46,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.pages.ChildPages
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import com.arkivanov.decompose.value.update
 import com.nmt.kmpwallpaper.composeApp.commonMain.Res
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_drawer
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_new
@@ -56,6 +59,7 @@ import com.nmt.kmpwallpaper.presentation.component.CardItem
 import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.DrawerBody
 import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.DrawerHeader
 import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.Settings
+import com.nmt.kmpwallpaper.presentation.home.page.Page
 import com.nmt.kmpwallpaper.presentation.home.page.trending.TrendingPage
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
@@ -148,18 +152,22 @@ private fun HomeContent(
     onCategoryClick:(Photo) -> Unit,
     onPhotoClick: (Photo) -> Unit
 ) {
+    println(
+        "photos ${photos.size}"
+    )
     val pages by homeComponent.page.subscribeAsState()
+    val scrollState by homeComponent.scrollState.subscribeAsState()
     Column(
         modifier = modifier.fillMaxSize().padding(
             horizontal = 16.dp,
         ),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        val photoScrollState = rememberLazyGridState()
-        val categoryHeader by animateDpAsState(
-            targetValue = if (photoScrollState.firstVisibleItemIndex > 2) 0.dp else 100.dp
-        )
-        Column(modifier = Modifier.height(categoryHeader), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
+//        val categoryHeader by animateDpAsState(
+//            targetValue = if (photoScrollState.firstVisibleItemIndex > 2) 0.dp else 100.dp
+//        )
+        Column(modifier = Modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row {
                 Text(
                     text = "Category",
@@ -223,18 +231,35 @@ private fun HomeContent(
             ChildPages(
                 pages = pages,
                 onPageSelected = homeComponent::selectPage
-            ) { index, _ ->
-                when(index) {
-                    0 -> {
+            ) { index, page ->
+                when(page) {
+                    is Page.Trending -> {
+                        val scrollStateT by page.component.scrollState.subscribeAsState()
+
+                        val state = rememberLazyListState(
+                            initialFirstVisibleItemIndex = scrollStateT.first,
+                            initialFirstVisibleItemScrollOffset = scrollStateT.second
+                        )
+                        println(
+                         "state $scrollStateT ${state.firstVisibleItemIndex}"
+                        )
                         TrendingPage(
                             photos = photos,
                             onLikeClick = {},
                             onItemClick = onPhotoClick,
-                            state = photoScrollState
+                            state = state,
+                            onScrollEnd = { itemIndex , offset ->
+                                println(
+                                    "state onScrollEnd $itemIndex $offset"
+                                )
+                                page.component.scrollState.update {
+                                    itemIndex to offset
+                                }
+                            }
                         )
                     }
-                    1 -> {}
-                    2 -> {}
+                    is Page.Recent -> {}
+                    is Page.New-> {}
                 }
             }
         }

@@ -41,12 +41,9 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(compose.runtime)
-            implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
 
             api(projects.kmpCore.coreLibrary)
             implementation(coreLibs.navigation.decompose)
@@ -57,6 +54,7 @@ kotlin {
             implementation(libs.firebase.common)
             implementation(libs.platform.kore)
             implementation(libs.coil.compose)
+            implementation(libs.decompose.mvi)
         }
     }
 
