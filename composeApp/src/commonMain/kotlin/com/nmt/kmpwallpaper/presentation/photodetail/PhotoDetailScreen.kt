@@ -39,10 +39,12 @@ import androidx.compose.ui.unit.dp
 import coil3.Bitmap
 import coil3.ImageLoader
 import coil3.PlatformContext
+import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.CachePolicy
+import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.ImageResult
 import coil3.request.SuccessResult
@@ -199,26 +201,24 @@ private fun PhotoPreview(
     ) {
         val imageRequest = ImageRequest.Builder(LocalPlatformContext.current)
             .data(photo.imageUrl)
+            .memoryCacheKey(photo.id.toString())
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
             .allowConversionToBitmap(true)
             .build()
-        val loader = ImageLoader.Builder(LocalPlatformContext.current)
-            .build()
+        val loader = SingletonImageLoader.get(LocalPlatformContext.current)
         scope.launch {
-            val result = loader.execute(imageRequest)
-            when(result) {
+            when(val result = loader.execute(imageRequest)) {
                 is SuccessResult -> {
-                    println(
-                        "Success"
-                    )
                     onPhotoLoaded(result.image.toBitmap())
                 }
-
                 else -> {}
             }
         }
         AsyncImage(
             model = imageRequest.data,
-            contentDescription = "Detail Item"
+            contentDescription = "Detail Item",
+            imageLoader = loader
         )
     }
 }

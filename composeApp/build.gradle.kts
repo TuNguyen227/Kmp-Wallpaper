@@ -46,15 +46,14 @@ kotlin {
             implementation(compose.components.resources)
 
             api(projects.kmpCore.coreLibrary)
-            implementation(coreLibs.navigation.decompose)
-            implementation(coreLibs.decompose.extension)
             implementation(libs.decompose.coroutines)
-            implementation(libs.landscapist.coil3)
             implementation(libs.firebase.database)
             implementation(libs.firebase.common)
             implementation(libs.platform.kore)
             implementation(libs.coil.compose)
             implementation(libs.decompose.mvi)
+            implementation(libs.decompose.router)
+            implementation(libs.coil.network.ktor3)
         }
     }
 

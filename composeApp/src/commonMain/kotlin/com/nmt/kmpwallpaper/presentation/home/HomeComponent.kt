@@ -32,6 +32,9 @@ class HomeComponent(
 ) : ScreenComponent, KoinComponent, ComponentContext by componentContext  {
     private val _uiState = MutableValue(HomeUiState())
     val uiState : Value<HomeUiState> = _uiState
+
+    private val _recentList = MutableValue<List<Photo>>(listOf())
+    val recentList = _recentList
     private val firebaseDatabase by inject<FirebaseDatabase>()
     private var query: String = ""
     private val scope = coroutineScope()
@@ -78,7 +81,6 @@ class HomeComponent(
             }
         }
     }
-    val scrollState = MutableValue(Pair(0,0))
 
     fun selectPage(index: Int, onComplete: () -> Unit = {} ) {
         pageNavigation.select(index = index, onComplete = { _,_ ->
@@ -96,7 +98,6 @@ class HomeComponent(
     }
 
     override fun resetState() {
-
     }
 
     fun onCategoryClick(photo: Photo) {
@@ -108,6 +109,20 @@ class HomeComponent(
                     query += "$it "
                 }
                 getPhotos()
+            }
+        }
+    }
+
+    fun onTrendingPhotoClicked(photo: Photo) {
+        _recentList.update { value ->
+            value.contains(photo).let {
+                if (it) {
+                    value
+                } else {
+                    val list = value.toMutableList()
+                    list.add(photo)
+                    list
+                }
             }
         }
     }

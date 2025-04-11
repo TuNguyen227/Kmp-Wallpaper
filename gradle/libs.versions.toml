@@ -1,7 +1,7 @@
 [versions]
 agp = "8.8.2"
 android-compileSdk = "35"
-android-minSdk = "24"
+android-minSdk = "25"
 android-targetSdk = "35"
 androidx-activityCompose = "1.9.3"
 coilCompose = "3.1.0"
@@ -10,14 +10,19 @@ firebaseBom = "33.11.0"
 firebaseCommon = "1.8.1"
 firebaseCommonKtx = "21.0.0"
 firebaseDatabase = "2.1.0"
+imageLoader = "1.10.0"
 kotlin = "2.1.10"
 decompose-coroutines = "2.5.0"
 landscapistCoil = "2.4.7"
 google-service = "4.4.2"
 platform-kore = "0.1.0"
 mvi = "4.3.0"
+decompose-router = "0.9.0"
+material3WindowSizeClassAndroid = "1.3.1"
 
 [libraries]
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
+decompose-router = { module = "io.github.xxfast:decompose-router", version.ref = "decompose-router"}
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 decompose-coroutines = { module = "com.arkivanov.essenty:lifecycle-coroutines", version.ref = "decompose-coroutines"}
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
@@ -25,9 +30,11 @@ firebase-common = { module = "dev.gitlive:firebase-common", version.ref = "fireb
 firebase-common-ktx = { module = "com.google.firebase:firebase-common-ktx", version.ref = "firebaseCommonKtx" }
 firebase-database = { module = "dev.gitlive:firebase-database", version.ref = "firebaseDatabase" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+image-loader = { module = "io.github.qdsfdhvh:image-loader", version.ref = "imageLoader" }
 landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.ref = "landscapistCoil" }
 platform-kore = { module = "io.github.tunguyen227:platformkore", version.ref = "platform-kore"}
 decompose-mvi = { module = "com.arkivanov.mvikotlin:mvikotlin", version.ref = 'mvi'}
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

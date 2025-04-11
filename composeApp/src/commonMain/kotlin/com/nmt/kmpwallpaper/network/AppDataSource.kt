@@ -1,5 +1,6 @@
 package com.nmt.kmpwallpaper.network
 
+import com.nmt.kmpcore.infrastructure.provider.LanguageProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
@@ -16,6 +17,8 @@ class AppDataSource(
                 parameters.append("page",page)
                 parameters.append("orientation","portrait")
                 parameters.append("size","small")
+                parameters.append("per_page","16")
+                parameters.append("locale",LanguageProvider.getLocaleLanguage().code)
             }
         }
     }

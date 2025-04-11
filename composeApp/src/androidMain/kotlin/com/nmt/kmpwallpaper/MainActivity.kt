@@ -8,7 +8,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.initialize
 import com.nmt.kmpcore.presentation.navigation.RootComponent
 import com.nmt.kmpwallpaper.data.ImageRepository
-import com.nmt.kmpwallpaper.di.koin
+import com.nmt.kmpwallpaper.di.KoinManager
 import com.nmt.kmpwallpaper.infrastructure.wallpaper.WallpaperManager
 import com.nmt.kmpwallpaper.presentation.AppHost
 import com.nmt.kmpwallpaper.presentation.Child
@@ -22,6 +22,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Firebase.initialize(this)
         WallpaperManager.initialize(this)
+        val koin = KoinManager.initKoin {
+            applicationContext
+        }
         val root = retainedComponent {
             RootComponent(
                 componentContext = it,
@@ -32,7 +35,7 @@ class MainActivity : ComponentActivity() {
                             Child.Home(
                                 HomeComponent(
                                     componentContext = context,
-                                    imageRepository = koin.inject<ImageRepository>().value
+                                    imageRepository = koin.get<ImageRepository>()
                                 )
                             )
                         }
@@ -65,5 +68,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-class Test()
