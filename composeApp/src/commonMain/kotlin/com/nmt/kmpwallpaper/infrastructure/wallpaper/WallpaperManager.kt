@@ -9,4 +9,6 @@ expect object WallpaperManager {
     fun setBitmapAsHomeScreen(bitmap: Bitmap)
 
     fun setBitmapAsLockScreen(bitmap: Bitmap)
+
+    fun setBitMapAsBothScreens(bitmap: Bitmap)
 }

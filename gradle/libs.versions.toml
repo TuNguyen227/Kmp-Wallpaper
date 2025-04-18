@@ -15,6 +15,7 @@ kotlin = "2.1.10"
 decompose-coroutines = "2.5.0"
 landscapistCoil = "2.4.7"
 google-service = "4.4.2"
+pagingComposeCommon = "3.3.0-alpha02-0.5.1"
 platform-kore = "0.1.0"
 mvi = "4.3.0"
 decompose-router = "0.9.0"
@@ -32,6 +33,8 @@ firebase-database = { module = "dev.gitlive:firebase-database", version.ref = "f
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 image-loader = { module = "io.github.qdsfdhvh:image-loader", version.ref = "imageLoader" }
 landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.ref = "landscapistCoil" }
+paging-common = { module = "app.cash.paging:paging-common", version.ref = "pagingComposeCommon" }
+paging-compose-common = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingComposeCommon" }
 platform-kore = { module = "io.github.tunguyen227:platformkore", version.ref = "platform-kore"}
 decompose-mvi = { module = "com.arkivanov.mvikotlin:mvikotlin", version.ref = 'mvi'}
 

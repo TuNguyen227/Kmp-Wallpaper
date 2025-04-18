@@ -1,12 +1,10 @@
 package com.nmt.kmpwallpaper.presentation.photodetail
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,20 +31,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import coil3.Bitmap
-import coil3.ImageLoader
-import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
-import coil3.compose.rememberAsyncImagePainter
 import coil3.request.CachePolicy
-import coil3.request.ErrorResult
 import coil3.request.ImageRequest
-import coil3.request.ImageResult
 import coil3.request.SuccessResult
 import coil3.request.allowConversionToBitmap
 import coil3.toBitmap
@@ -69,9 +60,7 @@ fun PhotoDetailRoute(
         component = component,
         photo = photo,
         onNavigateBack = onNavigateBack,
-        onHandlePhoto = {
-            component.onHandlePhoto()
-        },
+        onHandlePhoto = component::onHandlePhoto,
         onPhotoLoaded = component::onPhotoLoaded
     )
 }
@@ -82,7 +71,7 @@ fun PhotoDetailScreen(
     component: PhotoDetailComponent,
     photo: Photo,
     onNavigateBack: () -> Unit,
-    onHandlePhoto: () -> Unit,
+    onHandlePhoto: (Settings) -> Unit,
     onPhotoLoaded: (Bitmap) -> Unit
 ) {
     Box(
@@ -140,21 +129,28 @@ fun PhotoDetailScreen(
 
         if (isHandlePhoto) {
             ModalBottomSheet(
-                onDismissRequest = {},
+                onDismissRequest = {
+                    isHandlePhoto = false
+                },
                 contentColor = MaterialTheme.colorScheme.background,
                 dragHandle = null
             ) {
-                Box(modifier = Modifier.fillMaxWidth()) {
-//                    val options = listOf(
-//                        Settings("Set on home screen"),
-//                        "Set on lock screen",
-//                        "Set on both screen"
-//                    )
-//
-//                    DrawerBody(
-//                        items = options,
-//
-//                    )
+                Box(modifier = Modifier.fillMaxWidth()
+                ) {
+                    val options = listOf(
+                        Settings.ACTION_SET_HOME_SCREEN,
+                        Settings.ACTION_SET_LOCK_SCREEN,
+                        Settings.ACTION_SET_HOME_N_LOCK
+                    )
+
+                    DrawerBody(
+                        items = options,
+                        onItemClick = {
+                            onHandlePhoto(it)
+                            isHandlePhoto = false
+                        },
+                        modifier = Modifier.padding(16.dp)
+                    )
                 }
             }
         }

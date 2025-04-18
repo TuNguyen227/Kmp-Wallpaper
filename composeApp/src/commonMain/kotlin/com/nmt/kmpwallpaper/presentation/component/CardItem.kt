@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -30,18 +31,15 @@ fun CardItem(
     imageModifier: Modifier =Modifier,
     photo: Photo,
     onItemClick: (Photo) -> Unit,
-    borderStrokeEnabled: Boolean = false
+    borderStrokeEnabled: Boolean = false,
+    isItemClicked: Boolean = false
 ) {
-    var isItemClick by rememberSaveable(photo.id) {
-        mutableStateOf(false)
-    }
     OutlinedCard(
         modifier = modifier.then(imageModifier),
         onClick = {
-            isItemClick = !isItemClick
             onItemClick(photo)
         },
-        border = if (isItemClick && borderStrokeEnabled) BorderStroke(2.dp, MaterialTheme.colorScheme.primaryContainer)
+        border = if (isItemClicked && borderStrokeEnabled) BorderStroke(2.dp, MaterialTheme.colorScheme.primaryContainer)
             else CardDefaults.outlinedCardBorder()
         ,
         shape = RoundedCornerShape(16.dp)

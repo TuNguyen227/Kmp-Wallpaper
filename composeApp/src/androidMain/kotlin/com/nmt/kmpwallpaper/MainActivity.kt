@@ -3,6 +3,7 @@ package com.nmt.kmpwallpaper
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import com.arkivanov.decompose.retainedComponent
 import com.google.firebase.Firebase
 import com.google.firebase.initialize
@@ -22,9 +23,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Firebase.initialize(this)
         WallpaperManager.initialize(this)
-        val koin = KoinManager.initKoin {
-            applicationContext
-        }
+        val koin = KoinManager.koin ?: KoinManager.initKoin()
         val root = retainedComponent {
             RootComponent(
                 componentContext = it,

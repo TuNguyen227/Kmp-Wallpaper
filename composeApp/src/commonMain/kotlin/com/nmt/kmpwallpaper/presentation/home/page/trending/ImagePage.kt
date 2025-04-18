@@ -9,14 +9,22 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.cash.paging.LoadStateError
+import app.cash.paging.compose.LazyPagingItems
+import app.cash.paging.compose.itemContentType
+import app.cash.paging.compose.itemKey
 import com.nmt.kmpwallpaper.model.Photo
 import com.nmt.kmpwallpaper.presentation.component.CardItem
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun ImagePage(
     modifier: Modifier,
     state: LazyGridState,
-    photos: List<Photo>,
+    lazyPhotos: LazyPagingItems<Photo>? = null,
+    photos: List<Photo>? = null,
     onItemClick: (Photo) -> Unit,
 ) {
     LazyVerticalGrid(
@@ -24,14 +32,36 @@ fun ImagePage(
         state = state,
         columns = GridCells.Fixed(2),
         content = {
-            items(photos) { photo ->
-                CardItem(
-                    modifier = Modifier.height(300.dp),
-                    photo = photo,
-                    onItemClick = {
-                        onItemClick(photo)
+            lazyPhotos?.let {
+                items(lazyPhotos.itemCount,
+                    contentType = lazyPhotos.itemContentType()
+                ) { index ->
+                    val photo = lazyPhotos[index]
+                    photo?.let { nonNullItem ->
+                        CardItem(
+                            modifier = Modifier.height(300.dp),
+                            photo = nonNullItem,
+                            onItemClick = {
+                                onItemClick(nonNullItem)
+                            }
+                        )
                     }
-                )
+                    if (lazyPhotos.loadState.append is LoadStateError) {
+                        println("Check state ${(lazyPhotos.loadState.append as LoadStateError).error}")
+                    }
+                }
+            } ?: run {
+                photos?.let {
+                    items(photos) {
+                        CardItem(
+                            modifier = Modifier.height(300.dp),
+                            photo = it,
+                            onItemClick = {
+                                onItemClick(it)
+                            }
+                        )
+                    }
+                }
             }
         },
         verticalArrangement = Arrangement.spacedBy(10.dp),

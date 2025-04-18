@@ -1,5 +1,6 @@
 package com.nmt.kmpwallpaper.presentation.component.navigationdrawer
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -62,6 +63,9 @@ fun DrawerBody(
         LazyColumn(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
             items(items) { item ->
                 DrawerItem(
+                    modifier = Modifier.clickable {
+                        onItemClick(item)
+                    },
                     content = item.title,
                     icon = vectorResource(item.icon),
                     endContent = {
@@ -119,11 +123,13 @@ fun DrawerBody(
 
 @Composable
 private fun DrawerItem(
+    modifier: Modifier = Modifier,
     content : String,
     endContent: @Composable () -> Unit = {},
     icon: ImageVector
 ) {
     Card(
+        modifier = modifier
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(

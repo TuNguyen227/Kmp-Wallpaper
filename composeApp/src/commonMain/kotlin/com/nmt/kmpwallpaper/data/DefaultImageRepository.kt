@@ -1,28 +1,23 @@
 package com.nmt.kmpwallpaper.data
 
-import com.nmt.kmpcore.network.model.ResultWrapper
-import com.nmt.kmpcore.network.safeApiCall
-import com.nmt.kmpwallpaper.network.AppSourceApi
-import com.nmt.kmpwallpaper.network.model.response.SearchResponse
+import androidx.paging.PagingConfig
+import app.cash.paging.Pager
+import app.cash.paging.PagingData
+import com.nmt.kmpwallpaper.model.Photo
+import kotlinx.coroutines.flow.Flow
 import org.koin.core.component.KoinComponent
 
 class DefaultImageRepository(
-    private val appDataSource: AppSourceApi
+    private val imagePagingSource: ImagePagingSource
 ) : ImageRepository,KoinComponent {
-    override suspend fun search(query: String, page: String): SearchResponse? {
-        val result = safeApiCall<SearchResponse> {
-            appDataSource.search(
-                query = query,
-                page = page
-            )
+    private val pager : Pager<Int,Photo> = Pager(
+        config = PagingConfig(
+            pageSize = 16,
+            prefetchDistance = 4
+        ),
+        pagingSourceFactory = {
+            imagePagingSource
         }
-        return when(result) {
-            is ResultWrapper.Success -> {
-                result.data
-            }
-            is ResultWrapper.Error -> {
-                null
-            }
-        }
-    }
+    )
+    override val pagingData: Flow<PagingData<Photo>> = pager.flow
 }

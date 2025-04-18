@@ -24,10 +24,18 @@ actual object WallpaperManager {
     }
     actual fun setBitmapAsHomeScreen(bitmap: Bitmap) {
         setAs(bitmap = bitmap, AndroidWallpaperManager.FLAG_SYSTEM)
+        bitmap.recycle()
     }
 
     actual fun setBitmapAsLockScreen(bitmap: Bitmap) {
         setAs(bitmap = bitmap, AndroidWallpaperManager.FLAG_LOCK)
+        bitmap.recycle()
+    }
+
+    actual fun setBitMapAsBothScreens(bitmap: Bitmap) {
+        setAs(bitmap = bitmap, AndroidWallpaperManager.FLAG_SYSTEM)
+        setAs(bitmap = bitmap, AndroidWallpaperManager.FLAG_LOCK)
+        bitmap.recycle()
     }
 
     private fun setAs(bitmap: Bitmap,flag: Int) {
@@ -43,7 +51,6 @@ actual object WallpaperManager {
                     e.printStackTrace()
                 }
                 wallpaper.recycle()
-                bitmap.recycle()
             }
         }
     }

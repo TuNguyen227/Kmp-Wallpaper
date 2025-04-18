@@ -8,4 +8,5 @@ actual object WallpaperManager{
     actual fun initialize(platformContext: PlatformContext) {}
     actual fun setBitmapAsHomeScreen(bitmap: Bitmap) {}
     actual fun setBitmapAsLockScreen(bitmap: Bitmap) {}
+    actual fun setBitMapAsBothScreens(bitmap: Bitmap) {}
 }
