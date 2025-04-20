@@ -28,7 +28,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -59,6 +61,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import app.cash.paging.LoadStateLoading
 import app.cash.paging.compose.LazyPagingItems
 import app.cash.paging.compose.collectAsLazyPagingItems
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
@@ -225,7 +228,7 @@ private fun HomeContent(
                         newState.firstVisibleItemIndex > 2
                     ) 0.dp else 100.dp
                 )
-                Column(modifier = Modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(modifier = Modifier.height(categoryHeader), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row {
                         Text(
                             text = "Category",
@@ -297,12 +300,20 @@ private fun HomeContent(
                     ) { page ->
                         when (page) {
                             0 -> {
-                                ImagePage(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    state = trendingState,
-                                    lazyPhotos = photos,
-                                    onItemClick = onPhotoClick
-                                )
+                                Column {
+                                    ImagePage(
+                                        modifier = Modifier.fillMaxWidth().weight(1f),
+                                        state = trendingState,
+                                        lazyPhotos = photos,
+                                        onItemClick = onPhotoClick
+                                    )
+                                    if (photos.loadState.append is LoadStateLoading) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(50.dp).semantics { this.contentDescription = "Circle progress loading" }.align(Alignment.CenterHorizontally),
+                                            color = MaterialTheme.colorScheme.primaryContainer
+                                        )
+                                    }
+                                }
                             }
 
                             1 -> {
@@ -357,12 +368,12 @@ fun CategorySheetView(
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             containerColor = MaterialTheme.colorScheme.background
         ) {
-            Box(
-                modifier = Modifier.fillMaxHeight(0.9f).fillMaxWidth()
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp).fillMaxHeight(0.9f).fillMaxWidth()
                     .background(color = MaterialTheme.colorScheme.background)
             ) {
                 LazyVerticalGrid(
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier.weight(1f),
                     columns = GridCells.Fixed(3),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -382,6 +393,23 @@ fun CategorySheetView(
                             isItemClicked = isItemClicked
                         )
                     }
+                }
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.primaryContainer,
+                        disabledContentColor = Color.Unspecified,
+                        disabledContainerColor = Color.Unspecified
+                    ),
+                    onClick = {
+                        scope.launch {
+                            sheetState.hide()
+                        }
+                        onCategorySheetDismiss(chosenCategories.value)
+                    }
+                ) {
+                    Text("Apply", style = MaterialTheme.typography.bodyMedium, color = Color.White)
                 }
             }
         }

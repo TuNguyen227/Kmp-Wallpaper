@@ -2,6 +2,7 @@ package com.nmt.kmpwallpaper.presentation.home
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.pages.Pages
 import com.arkivanov.decompose.router.pages.PagesNavigation
@@ -45,7 +46,7 @@ class HomeComponent(
     private val imageJob = coroutineScope()
 
     private val pageNavigation = PagesNavigation<PageConfiguration>()
-    val images = imageRepository.pagingData
+    val images = imageRepository.pagingData.cachedIn(scope)
     val page = childPages(
         source = pageNavigation,
         serializer = PageConfiguration.serializer(),
@@ -85,6 +86,8 @@ class HomeComponent(
             }
         }
     }
+
+    
 
     fun selectPage(index: Int, onComplete: () -> Unit = {} ) {
         pageNavigation.select(index = index, onComplete = { _,_ ->
@@ -159,16 +162,7 @@ class HomeComponent(
         }
     }
 
-    private suspend fun getPhotos() {
-//        val request = query.ifEmpty {
-//            "trending"
-//        }.trim()
-//        imageRepository.search(request,"1")?.photos?.map {
-//            it.toPhoto()
-//        }?.let { photos ->
-//            _uiState.update {
-//                it.copy(images = photos)
-//            }
-//        }
+    private fun getPhotos() {
+        imageRepository.query(query = query.takeIf { it != "" })
     }
 }

@@ -63,7 +63,7 @@ fun AppHost(root: RootComponent) {
                 is Child.FlashScreen -> FlashScreenRoute(
                     component = instance.component,
                     onNavigate = { config ->
-                        root.navigate(
+                        root.navigateAndClearStack(
                             configuration = config,
                             onComplete = {
                                 if (it) {

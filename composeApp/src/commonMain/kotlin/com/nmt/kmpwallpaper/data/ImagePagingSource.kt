@@ -20,7 +20,7 @@ class ImagePagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Photo> {
         val currentPage = params.key ?: 1
         val data = fetch(query = query ?: "trending", page = currentPage)
-        println("Check state load $currentPage $data")
+        println("Check state load $query $currentPage $data")
         return data?.let { nonNullData ->
             LoadResult.Page(
                 data = nonNullData.photos.map { it.toPhoto() },
@@ -42,7 +42,7 @@ class ImagePagingSource(
         }
     }
 
-    fun setQuery(query: String) {
+    fun setQuery(query: String?) {
         this.query = query
     }
 }
