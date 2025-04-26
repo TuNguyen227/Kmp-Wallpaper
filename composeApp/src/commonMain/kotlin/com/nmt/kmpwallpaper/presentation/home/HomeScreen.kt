@@ -46,9 +46,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,23 +65,16 @@ import app.cash.paging.compose.collectAsLazyPagingItems
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.nmt.kmpwallpaper.composeApp.commonMain.Res
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_drawer
-import com.nmt.kmpwallpaper.composeApp.commonMain.ic_new
-import com.nmt.kmpwallpaper.composeApp.commonMain.ic_recent
-import com.nmt.kmpwallpaper.composeApp.commonMain.ic_trending
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_wallpaper
 import com.nmt.kmpwallpaper.model.Photo
-import com.nmt.kmpwallpaper.network.model.response.SearchResponse
 import com.nmt.kmpwallpaper.presentation.component.ButtonIcon
 import com.nmt.kmpwallpaper.presentation.component.CardItem
 import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.DrawerBody
 import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.DrawerHeader
-import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.Settings
+import com.nmt.kmpwallpaper.presentation.home.model.SubCategory
 import com.nmt.kmpwallpaper.presentation.home.page.trending.ImagePage
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.vectorResource
-import kotlin.coroutines.CoroutineContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,7 +83,8 @@ fun HomeScreen(
     onPhotoClick: (Photo) -> Unit
 ) {
     val uiState by component.uiState.subscribeAsState()
-    val images = component.images.collectAsLazyPagingItems()
+    val trendingImages = component.trendingImages.collectAsLazyPagingItems()
+    val newsImages = component.newsImages.collectAsLazyPagingItems()
     val recentImages by component.recentList.subscribeAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -104,18 +96,30 @@ fun HomeScreen(
                 drawerContainerColor = Color(0xFFF9F9F9)
             ) {
                 Column {
-                    DrawerHeader()
+                    var viewingDetail by remember {
+                        mutableStateOf(false)
+                    }
+                    DrawerHeader(
+                        shouldShowIcon = viewingDetail,
+                        onBack = {
+                            viewingDetail = false
+                        }
+                    )
                     DrawerBody(
-                        items = listOf(
-                            Settings.NOTIFICATIONS,
-                            Settings.LANGUAGE,
-                            Settings.RATING,
-                            Settings.TERM_CONDITIONS,
-                            Settings.PRIVACY
-                        ),
+                        items = uiState.ui.appSettings,
                         onItemClick = {
+                            viewingDetail = true
                         },
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
+                        viewingDetail = viewingDetail,
+                        onLanguageClick = {
+                            scope.launch {
+                                println(
+                                    "Check language ${it.code}"
+                                )
+                                val result = component.onChangeLanguage(it)
+                            }
+                        }
                     )
                 }
             }
@@ -156,7 +160,9 @@ fun HomeScreen(
         ) { value ->
             HomeContent(
                 modifier = Modifier.padding(top = value.calculateTopPadding()),
-                photos = images,
+                uiState = uiState,
+                trendingPhotos = trendingImages,
+                newsPhotos = newsImages,
                 categories = uiState.categories,
                 onCategoryClick = component::onCategoryClick,
                 recentImages = recentImages,
@@ -174,7 +180,9 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     modifier: Modifier = Modifier,
-    photos: LazyPagingItems<Photo>,
+    uiState: HomeUiState,
+    trendingPhotos: LazyPagingItems<Photo>,
+    newsPhotos: LazyPagingItems<Photo>,
     categories: List<Photo>,
     recentImages: List<Photo>,
     onCategoryClick: (Photo) -> Unit,
@@ -224,8 +232,7 @@ private fun HomeContent(
                 val categoryHeader by animateDpAsState(
                     targetValue = if (
                         trendingState.firstVisibleItemIndex > 2 ||
-                        recentState.firstVisibleItemIndex > 2 ||
-                        newState.firstVisibleItemIndex > 2
+                        recentState.firstVisibleItemIndex > 2
                     ) 0.dp else 100.dp
                 )
                 Column(modifier = Modifier.height(categoryHeader), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -275,25 +282,26 @@ private fun HomeContent(
                     SubCategoryItem(
                         onItemClick = {
                             when (it) {
-                                SubCategory.Trending -> {
+                                is SubCategory.Trending -> {
                                     scope.launch {
                                         state.scrollToPage(0)
                                     }
                                 }
 
-                                SubCategory.Recent -> {
+                                is SubCategory.Recent -> {
                                     scope.launch {
                                         state.scrollToPage(1)
                                     }
                                 }
 
-                                SubCategory.New -> {
+                                is SubCategory.New -> {
                                     scope.launch {
                                         state.scrollToPage(2)
                                     }
                                 }
                             }
-                        }
+                        },
+                        items = uiState.ui.subCategories
                     )
                     HorizontalPager(
                         state = state
@@ -304,10 +312,10 @@ private fun HomeContent(
                                     ImagePage(
                                         modifier = Modifier.fillMaxWidth().weight(1f),
                                         state = trendingState,
-                                        lazyPhotos = photos,
+                                        lazyPhotos = trendingPhotos,
                                         onItemClick = onPhotoClick
                                     )
-                                    if (photos.loadState.append is LoadStateLoading) {
+                                    if (trendingPhotos.loadState.append is LoadStateLoading) {
                                         CircularProgressIndicator(
                                             modifier = Modifier.size(50.dp).semantics { this.contentDescription = "Circle progress loading" }.align(Alignment.CenterHorizontally),
                                             color = MaterialTheme.colorScheme.primaryContainer
@@ -317,16 +325,38 @@ private fun HomeContent(
                             }
 
                             1 -> {
-                                ImagePage(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    state = recentState,
-                                    photos = recentImages,
-                                    onItemClick = onPhotoClick
-                                )
+                                if (recentImages.isEmpty()) {
+                                    Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.TopCenter) {
+                                        Text(
+                                            "You have not viewed any images.",
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                } else {
+                                    ImagePage(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        state = recentState,
+                                        photos = recentImages,
+                                        onItemClick = onPhotoClick
+                                    )
+                                }
                             }
 
                             2 -> {
-
+                                Column {
+                                    ImagePage(
+                                        modifier = Modifier.fillMaxWidth().weight(1f),
+                                        state = newState,
+                                        lazyPhotos = newsPhotos,
+                                        onItemClick = onPhotoClick
+                                    )
+                                    if (newsPhotos.loadState.append is LoadStateLoading) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(50.dp).semantics { this.contentDescription = "Circle progress loading" }.align(Alignment.CenterHorizontally),
+                                            color = MaterialTheme.colorScheme.primaryContainer
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -419,7 +449,8 @@ fun CategorySheetView(
 
 @Composable
 private fun SubCategoryItem(
-    onItemClick: (SubCategory) -> Unit
+    onItemClick: (SubCategory) -> Unit,
+    items: List<SubCategory>
 ) {
     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         Row(
@@ -429,46 +460,27 @@ private fun SubCategoryItem(
             ).padding(5.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            val list = listOf(
-                SubCategory.Trending,
-                SubCategory.Recent,
-                SubCategory.New
-            )
             var clickedSubCategory by rememberSaveable {
-                mutableStateOf(SubCategory.Trending)
+                mutableStateOf(items.first().name)
             }
-            list.forEach {
+            items.forEach { item->
                 ButtonIcon(
                     modifier = Modifier.width(100.dp),
-                    content = it.name,
+                    content = item.name,
                     color = CardDefaults.cardColors(
-                        containerColor = if (it == clickedSubCategory) MaterialTheme.colorScheme.primaryContainer
+                        containerColor = if (item.name == clickedSubCategory) MaterialTheme.colorScheme.primaryContainer
                         else Color.Unspecified
                     ),
                     shape = CircleShape,
-                    onClick = { clickedItem ->
-                        SubCategory.fromValue(clickedItem)?.let { nonNullSubCategory ->
-                            clickedSubCategory = nonNullSubCategory
-                            onItemClick(nonNullSubCategory)
-                        }
+                    onClick = {
+                        clickedSubCategory = item.name
+                        onItemClick(item)
                     },
-                    icon = it.icon,
-                    iconColor = if (it == clickedSubCategory) Color.White
+                    icon = item.icon,
+                    iconColor = if (item.name == clickedSubCategory) Color.White
                     else Color.Unspecified
                 )
             }
-        }
-    }
-}
-
-enum class SubCategory(val icon: DrawableResource) {
-    Trending(Res.drawable.ic_trending),
-    Recent(Res.drawable.ic_recent),
-    New(Res.drawable.ic_new);
-
-    companion object {
-        fun fromValue(value: String): SubCategory? {
-            return enumValues<SubCategory>().find { it.name == value }
         }
     }
 }

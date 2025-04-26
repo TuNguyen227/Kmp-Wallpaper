@@ -64,12 +64,7 @@ fun AppHost(root: RootComponent) {
                     component = instance.component,
                     onNavigate = { config ->
                         root.navigateAndClearStack(
-                            configuration = config,
-                            onComplete = {
-                                if (it) {
-                                    instance.component.resetState()
-                                }
-                            }
+                            configuration = config
                         )
                     }
                 )

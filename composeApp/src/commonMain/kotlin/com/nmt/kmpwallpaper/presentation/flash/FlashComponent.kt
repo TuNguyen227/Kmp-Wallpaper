@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class FlashComponent(
     componentContext: ComponentContext
-) : ScreenComponent, ComponentContext by componentContext  {
+) : ComponentContext by componentContext  {
     private val _uiState = MutableValue(FlashUiState())
     val uiState : Value<FlashUiState> = _uiState
 
@@ -34,12 +34,6 @@ class FlashComponent(
                     navigateState = ChildConfiguration.Home
                 )
             }
-        }
-    }
-
-    override fun resetState() {
-        _uiState.update {
-            it.copy(navigateState = null)
         }
     }
 }

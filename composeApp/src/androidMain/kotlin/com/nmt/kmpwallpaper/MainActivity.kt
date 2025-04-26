@@ -34,7 +34,8 @@ class MainActivity : ComponentActivity() {
                             Child.Home(
                                 HomeComponent(
                                     componentContext = context,
-                                    imageRepository = koin.get<ImageRepository>()
+                                    imageRepository = koin.get<ImageRepository>(),
+                                    changeLanguageUseCase = koin.get()
                                 )
                             )
                         }

@@ -7,4 +7,8 @@ interface AppSourceApi {
         query: String,
         page: String
     ) : HttpResponse
+
+    suspend fun getNews(
+        page: String
+    ) : HttpResponse
 }

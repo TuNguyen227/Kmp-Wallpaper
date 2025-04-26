@@ -54,7 +54,7 @@ kotlin {
             implementation(libs.decompose.mvi)
             implementation(libs.decompose.router)
             implementation(libs.coil.network.ktor3)
-
+            implementation(coreLibs.kotlin.serialization)
             implementation(libs.paging.compose.common)
             implementation(libs.paging.common)
         }

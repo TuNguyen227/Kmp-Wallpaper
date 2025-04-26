@@ -1,6 +1,5 @@
 package com.nmt.kmpwallpaper.presentation.photodetail
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,12 +40,13 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowConversionToBitmap
 import coil3.toBitmap
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.nmt.kmpwallpaper.composeApp.commonMain.Res
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_back
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_painter
 import com.nmt.kmpwallpaper.model.Photo
 import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.DrawerBody
-import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.Settings
+import com.nmt.kmpwallpaper.model.AppSetting
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.vectorResource
 
@@ -71,9 +71,10 @@ fun PhotoDetailScreen(
     component: PhotoDetailComponent,
     photo: Photo,
     onNavigateBack: () -> Unit,
-    onHandlePhoto: (Settings) -> Unit,
+    onHandlePhoto: (AppSetting) -> Unit,
     onPhotoLoaded: (Bitmap) -> Unit
 ) {
+    val uiState by component.uiState.subscribeAsState()
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -137,14 +138,9 @@ fun PhotoDetailScreen(
             ) {
                 Box(modifier = Modifier.fillMaxWidth()
                 ) {
-                    val options = listOf(
-                        Settings.ACTION_SET_HOME_SCREEN,
-                        Settings.ACTION_SET_LOCK_SCREEN,
-                        Settings.ACTION_SET_HOME_N_LOCK
-                    )
 
                     DrawerBody(
-                        items = options,
+                        items = uiState.actionSettings,
                         onItemClick = {
                             onHandlePhoto(it)
                             isHandlePhoto = false

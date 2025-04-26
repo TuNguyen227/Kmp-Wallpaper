@@ -4,6 +4,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.window.ComposeUIViewController
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.nmt.kmpcore.domain.ChangeLanguageUseCase
 import com.nmt.kmpcore.presentation.navigation.RootComponent
 import com.nmt.kmpwallpaper.data.ImageRepository
 import com.nmt.kmpwallpaper.di.KoinManager
@@ -26,7 +27,8 @@ fun MainViewController() = ComposeUIViewController {
                         Child.Home(
                             HomeComponent(
                                 componentContext = context,
-                                imageRepository = koin.inject<ImageRepository>().value
+                                imageRepository = koin.inject<ImageRepository>().value,
+                                changeLanguageUseCase = koin.get()
                             )
                         )
                     }

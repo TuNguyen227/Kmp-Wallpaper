@@ -2,25 +2,28 @@ package com.nmt.kmpwallpaper.presentation.photodetail
 
 import coil3.Bitmap
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.value.MutableValue
+import com.arkivanov.decompose.value.Value
 import com.nmt.kmpwallpaper.infrastructure.wallpaper.WallpaperManager
-import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.Settings
-import io.github.tunguyen227.Platform
+import com.nmt.kmpwallpaper.model.AppSetting
 
 class PhotoDetailComponent(
     componentContext: ComponentContext
 ): ComponentContext by componentContext {
+    private val _uiState = MutableValue(PhotoUiState())
+    val uiState : Value<PhotoUiState> = _uiState
     private var bitmap: Bitmap? = null
-    fun onHandlePhoto(settings: Settings) {
+    fun onHandlePhoto(action: AppSetting) {
         bitmap?.let { nonNullBitmap ->
-            when(settings) {
-                Settings.ACTION_SET_HOME_SCREEN -> {
+            when(action) {
+                is AppSetting.ActionSetAsHome -> {
                     WallpaperManager.setBitmapAsHomeScreen(nonNullBitmap)
                 }
-                Settings.ACTION_SET_LOCK_SCREEN -> {
+                is AppSetting.ActionSetAsLock -> {
                     WallpaperManager.setBitmapAsLockScreen(nonNullBitmap)
                 }
 
-                Settings.ACTION_SET_HOME_N_LOCK -> {
+                is AppSetting.ActionSetBoth -> {
                     WallpaperManager.setBitMapAsBothScreens(nonNullBitmap)
                 }
                 else -> {}

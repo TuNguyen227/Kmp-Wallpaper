@@ -1,7 +1,5 @@
 package com.nmt.kmpwallpaper.presentation.home
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.pages.Pages
@@ -11,29 +9,31 @@ import com.arkivanov.decompose.router.pages.select
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
-import com.arkivanov.essenty.instancekeeper.getOrCreate
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
+import com.nmt.kmpcore.domain.ChangeLanguageUseCase
+import com.nmt.kmpcore.infrastructure.provider.Language
 import com.nmt.kmpwallpaper.data.ImageRepository
 import com.nmt.kmpwallpaper.model.Photo
 import com.nmt.kmpwallpaper.network.model.response.CategoryModel
-import com.nmt.kmpwallpaper.network.model.response.PhotoResponse
 import com.nmt.kmpwallpaper.presentation.ScreenComponent
+import com.nmt.kmpwallpaper.model.AppSetting
+import com.nmt.kmpwallpaper.presentation.home.model.SubCategory
 import com.nmt.kmpwallpaper.presentation.home.page.new.NewComponent
 import com.nmt.kmpwallpaper.presentation.home.page.Page
 import com.nmt.kmpwallpaper.presentation.home.page.PageConfiguration
 import com.nmt.kmpwallpaper.presentation.home.page.recent.RecentComponent
 import com.nmt.kmpwallpaper.presentation.home.page.trending.TrendingComponent
-import com.nmt.kmpwallpaper.presentation.photodetail.factory.DefaultPhotoFactory
-import com.nmt.kmpwallpaper.presentation.photodetail.factory.PhotoFactory
+import com.nmt.kmpwallpaper.util.StringProvider
 import dev.gitlive.firebase.database.FirebaseDatabase
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import kotlin.coroutines.suspendCoroutine
 
 class HomeComponent(
     componentContext: ComponentContext,
-    private val imageRepository: ImageRepository
+    private val imageRepository: ImageRepository,
+    private val changeLanguageUseCase: ChangeLanguageUseCase
 ) : ScreenComponent, KoinComponent, ComponentContext by componentContext  {
     private val _uiState = MutableValue(HomeUiState())
     val uiState : Value<HomeUiState> = _uiState
@@ -46,7 +46,8 @@ class HomeComponent(
     private val imageJob = coroutineScope()
 
     private val pageNavigation = PagesNavigation<PageConfiguration>()
-    val images = imageRepository.pagingData.cachedIn(scope)
+    val trendingImages = imageRepository.pagingTrendingData.cachedIn(scope)
+    val newsImages = imageRepository.pagingNewsData.value.cachedIn(scope)
     val page = childPages(
         source = pageNavigation,
         serializer = PageConfiguration.serializer(),
@@ -96,6 +97,7 @@ class HomeComponent(
     }
 
     init {
+        updateUIFromLanguageProvider()
         scope.launch {
             getCategories()
         }
@@ -151,6 +153,16 @@ class HomeComponent(
         }
     }
 
+    suspend fun onChangeLanguage(language: Language) = suspendCoroutine<Boolean>{
+        scope.launch {
+            changeLanguageUseCase(
+                strings = StringProvider.getAllString(),
+                from = "en",
+                to = language.code
+            )
+        }
+    }
+
     private suspend fun getCategories() {
         firebaseDatabase.reference("Category").valueEvents.collect {
             val snapshot = it.value<List<CategoryModel>>()
@@ -164,5 +176,40 @@ class HomeComponent(
 
     private fun getPhotos() {
         imageRepository.query(query = query.takeIf { it != "" })
+    }
+
+    private fun updateUIFromLanguageProvider() {
+        _uiState.update {
+            it.copy(
+                ui = HomeUi(
+                    category = StringProvider.category,
+                    subCategories = listOf(
+                        SubCategory.Trending(
+                            StringProvider.trending
+                        ),
+                        SubCategory.Recent(
+                            StringProvider.recent
+                        ),
+                        SubCategory.New(
+                            StringProvider.new
+                        )
+                    ),
+                    appSettings = listOf(
+                        AppSetting.Language(
+                            StringProvider.language
+                        ),
+                        AppSetting.Rating(
+                            StringProvider.rating
+                        ),
+                        AppSetting.TermNCondition(
+                            StringProvider.termNCondition
+                        ),
+                        AppSetting.Privacy(
+                            StringProvider.privacy
+                        )
+                    )
+                )
+            )
+        }
     }
 }
