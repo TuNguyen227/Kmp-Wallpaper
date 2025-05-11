@@ -4,9 +4,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.window.ComposeUIViewController
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
-import com.nmt.kmpcore.domain.ChangeLanguageUseCase
 import com.nmt.kmpcore.presentation.navigation.RootComponent
-import com.nmt.kmpwallpaper.data.ImageRepository
+import com.nmt.kmpwallpaper.data.createDataStore
+import com.nmt.kmpwallpaper.data.imageRepository.ImageRepository
 import com.nmt.kmpwallpaper.di.KoinManager
 import com.nmt.kmpwallpaper.presentation.AppHost
 import com.nmt.kmpwallpaper.presentation.Child
@@ -17,6 +17,7 @@ import com.nmt.kmpwallpaper.presentation.photodetail.PhotoDetailComponent
 
 fun MainViewController() = ComposeUIViewController {
     val koin = KoinManager.initKoin()
+    val dataStore = createDataStore()
     val root = remember {
         RootComponent(
             componentContext = DefaultComponentContext(LifecycleRegistry()),
@@ -35,7 +36,8 @@ fun MainViewController() = ComposeUIViewController {
                     ChildConfiguration.Flash -> {
                         Child.FlashScreen(
                             FlashComponent(
-                                context
+                                componentContext = context,
+                                dataStore = dataStore
                             )
                         )
                     }
@@ -49,7 +51,8 @@ fun MainViewController() = ComposeUIViewController {
                     }
                     else -> Child.FlashScreen(
                         FlashComponent(
-                            context
+                            componentContext = context,
+                            dataStore = dataStore
                         )
                     )
                 }

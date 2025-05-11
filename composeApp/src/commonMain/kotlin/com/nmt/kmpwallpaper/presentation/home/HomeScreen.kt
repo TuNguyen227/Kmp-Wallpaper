@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -46,6 +47,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -100,6 +102,7 @@ fun HomeScreen(
                         mutableStateOf(false)
                     }
                     DrawerHeader(
+                        title = uiState.ui.setting,
                         shouldShowIcon = viewingDetail,
                         onBack = {
                             viewingDetail = false
@@ -114,10 +117,11 @@ fun HomeScreen(
                         viewingDetail = viewingDetail,
                         onLanguageClick = {
                             scope.launch {
-                                println(
-                                    "Check language ${it.code}"
-                                )
                                 val result = component.onChangeLanguage(it)
+                                if (result) {
+                                    viewingDetail = false
+                                    drawerState.close()
+                                }
                             }
                         }
                     )
@@ -215,7 +219,8 @@ private fun HomeContent(
                     onCategorySheetDismiss(chosenCategories)
                 },
                 categories = categories,
-                state = categoriesState
+                state = categoriesState,
+                buttonString = uiState.ui.apply
             )
         },
         content = {
@@ -238,7 +243,7 @@ private fun HomeContent(
                 Column(modifier = Modifier.height(categoryHeader), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row {
                         Text(
-                            text = "Category",
+                            text = uiState.ui.category,
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.semantics {
                                 this.contentDescription = "Category text"
@@ -246,7 +251,7 @@ private fun HomeContent(
                         )
 
                         Text(
-                            text = "View all",
+                            text = uiState.ui.viewAll,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.semantics {
                                 this.contentDescription = "ViewAll text"
@@ -328,7 +333,7 @@ private fun HomeContent(
                                 if (recentImages.isEmpty()) {
                                     Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.TopCenter) {
                                         Text(
-                                            "You have not viewed any images.",
+                                            uiState.ui.youHaveNotView,
                                             style = MaterialTheme.typography.bodyMedium
                                         )
                                     }
@@ -369,6 +374,7 @@ private fun HomeContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategorySheetView(
+    buttonString: String,
     isShow: Boolean,
     onCategorySheetDismiss: (List<Photo>) -> Unit,
     categories: List<Photo>,
@@ -439,7 +445,7 @@ fun CategorySheetView(
                         onCategorySheetDismiss(chosenCategories.value)
                     }
                 ) {
-                    Text("Apply", style = MaterialTheme.typography.bodyMedium, color = Color.White)
+                    Text( buttonString, style = MaterialTheme.typography.bodyMedium, color = Color.White)
                 }
             }
         }
@@ -452,6 +458,12 @@ private fun SubCategoryItem(
     onItemClick: (SubCategory) -> Unit,
     items: List<SubCategory>
 ) {
+    var clickedSubCategory by rememberSaveable {
+        mutableStateOf(items.first().hashCode())
+    }
+    LaunchedEffect(items) {
+        clickedSubCategory = items.first().hashCode()
+    }
     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         Row(
             modifier = Modifier.background(
@@ -460,24 +472,21 @@ private fun SubCategoryItem(
             ).padding(5.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            var clickedSubCategory by rememberSaveable {
-                mutableStateOf(items.first().name)
-            }
             items.forEach { item->
                 ButtonIcon(
                     modifier = Modifier.width(100.dp),
                     content = item.name,
                     color = CardDefaults.cardColors(
-                        containerColor = if (item.name == clickedSubCategory) MaterialTheme.colorScheme.primaryContainer
+                        containerColor = if (item.hashCode() == clickedSubCategory) MaterialTheme.colorScheme.primaryContainer
                         else Color.Unspecified
                     ),
                     shape = CircleShape,
                     onClick = {
-                        clickedSubCategory = item.name
+                        clickedSubCategory = item.hashCode()
                         onItemClick(item)
                     },
                     icon = item.icon,
-                    iconColor = if (item.name == clickedSubCategory) Color.White
+                    iconColor = if (item.hashCode() == clickedSubCategory) Color.White
                     else Color.Unspecified
                 )
             }

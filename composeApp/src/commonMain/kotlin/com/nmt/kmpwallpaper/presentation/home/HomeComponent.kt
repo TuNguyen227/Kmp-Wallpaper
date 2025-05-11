@@ -1,5 +1,7 @@
 package com.nmt.kmpwallpaper.presentation.home
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.paging.cachedIn
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.pages.Pages
@@ -12,7 +14,8 @@ import com.arkivanov.decompose.value.update
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.nmt.kmpcore.domain.ChangeLanguageUseCase
 import com.nmt.kmpcore.infrastructure.provider.Language
-import com.nmt.kmpwallpaper.data.ImageRepository
+import com.nmt.kmpcore.infrastructure.provider.LanguageProvider
+import com.nmt.kmpwallpaper.data.imageRepository.ImageRepository
 import com.nmt.kmpwallpaper.model.Photo
 import com.nmt.kmpwallpaper.network.model.response.CategoryModel
 import com.nmt.kmpwallpaper.presentation.ScreenComponent
@@ -28,12 +31,14 @@ import dev.gitlive.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class HomeComponent(
     componentContext: ComponentContext,
     private val imageRepository: ImageRepository,
-    private val changeLanguageUseCase: ChangeLanguageUseCase
+    private val changeLanguageUseCase: ChangeLanguageUseCase,
+    private val dataStore: DataStore<Preferences>
 ) : ScreenComponent, KoinComponent, ComponentContext by componentContext  {
     private val _uiState = MutableValue(HomeUiState())
     val uiState : Value<HomeUiState> = _uiState
@@ -104,6 +109,9 @@ class HomeComponent(
         imageJob.launch {
             getPhotos()
         }
+        println(
+            "flow data load ${StringProvider.getAllStringMap()}"
+        )
     }
 
     override fun resetState() {
@@ -153,13 +161,21 @@ class HomeComponent(
         }
     }
 
-    suspend fun onChangeLanguage(language: Language) = suspendCoroutine<Boolean>{
+    suspend fun onChangeLanguage(language: Language)  = suspendCoroutine { continuation ->
         scope.launch {
+            val allString = StringProvider.getAllStringMap().map { it.value }.toTypedArray()
+            val map = StringProvider.getAllStringMap().toMutableMap()
             changeLanguageUseCase(
-                strings = StringProvider.getAllString(),
-                from = "en",
+                strings = allString,
+                from = LanguageProvider.getLocaleLanguage().code,
                 to = language.code
-            )
+            )?.let { nonNullResult ->
+                val newMap = map.keys.zip(nonNullResult).toMap()
+                StringProvider.updateAllStringByLanguage(map = newMap, language = language.code, dataStore = dataStore)
+                updateUIFromLanguageProvider()
+                LanguageProvider.changeCurrentLanguage(language)
+                continuation.resume(true)
+            }
         }
     }
 
@@ -182,7 +198,11 @@ class HomeComponent(
         _uiState.update {
             it.copy(
                 ui = HomeUi(
+                    apply = StringProvider.apply,
+                    youHaveNotView = StringProvider.youHaveNotView,
+                    setting = StringProvider.setting,
                     category = StringProvider.category,
+                    viewAll = StringProvider.viewAll,
                     subCategories = listOf(
                         SubCategory.Trending(
                             StringProvider.trending

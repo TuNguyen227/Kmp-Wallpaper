@@ -3,12 +3,12 @@ package com.nmt.kmpwallpaper
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import com.arkivanov.decompose.retainedComponent
 import com.google.firebase.Firebase
 import com.google.firebase.initialize
 import com.nmt.kmpcore.presentation.navigation.RootComponent
-import com.nmt.kmpwallpaper.data.ImageRepository
+import com.nmt.kmpwallpaper.data.createDataStore
+import com.nmt.kmpwallpaper.data.imageRepository.ImageRepository
 import com.nmt.kmpwallpaper.di.KoinManager
 import com.nmt.kmpwallpaper.infrastructure.wallpaper.WallpaperManager
 import com.nmt.kmpwallpaper.presentation.AppHost
@@ -22,6 +22,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Firebase.initialize(this)
+        val dataStore = createDataStore(this)
         WallpaperManager.initialize(this)
         val koin = KoinManager.koin ?: KoinManager.initKoin()
         val root = retainedComponent {
@@ -35,14 +36,16 @@ class MainActivity : ComponentActivity() {
                                 HomeComponent(
                                     componentContext = context,
                                     imageRepository = koin.get<ImageRepository>(),
-                                    changeLanguageUseCase = koin.get()
+                                    changeLanguageUseCase = koin.get(),
+                                    dataStore = dataStore
                                 )
                             )
                         }
                         ChildConfiguration.Flash -> {
                             Child.FlashScreen(
                                 FlashComponent(
-                                    context
+                                    componentContext = context,
+                                    dataStore = dataStore
                                 )
                             )
                         }
@@ -56,7 +59,8 @@ class MainActivity : ComponentActivity() {
                         }
                         else -> Child.FlashScreen(
                             FlashComponent(
-                                context
+                                componentContext = context,
+                                dataStore = dataStore
                             )
                         )
                     }

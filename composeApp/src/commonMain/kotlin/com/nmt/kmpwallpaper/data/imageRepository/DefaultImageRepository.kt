@@ -1,4 +1,4 @@
-package com.nmt.kmpwallpaper.data
+package com.nmt.kmpwallpaper.data.imageRepository
 
 import androidx.paging.PagingConfig
 import app.cash.paging.Pager

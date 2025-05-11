@@ -1,4 +1,4 @@
-package com.nmt.kmpwallpaper.data
+package com.nmt.kmpwallpaper.data.imageRepository
 
 import app.cash.paging.PagingData
 import com.nmt.kmpwallpaper.model.Photo

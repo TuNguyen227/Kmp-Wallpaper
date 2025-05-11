@@ -10,8 +10,11 @@ data class HomeUiState(
 )
 
 data class HomeUi(
+    val setting: String = "Setting",
     val category: String = "Category",
     val viewAll: String = "View all",
+    val apply: String = "Apply",
+    val youHaveNotView: String = "You have not viewed any images.",
     val subCategories: List<SubCategory> = listOf(),
     val appSettings: List<AppSetting> = listOf()
 )

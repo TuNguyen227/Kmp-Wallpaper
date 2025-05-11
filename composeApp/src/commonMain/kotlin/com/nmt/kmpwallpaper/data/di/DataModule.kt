@@ -1,8 +1,8 @@
 package com.nmt.kmpwallpaper.data.di
 
-import com.nmt.kmpwallpaper.data.DefaultImageRepository
-import com.nmt.kmpwallpaper.data.ImagePagingSource
-import com.nmt.kmpwallpaper.data.ImageRepository
+import com.nmt.kmpwallpaper.data.imageRepository.DefaultImageRepository
+import com.nmt.kmpwallpaper.data.imageRepository.ImagePagingSource
+import com.nmt.kmpwallpaper.data.imageRepository.ImageRepository
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.database.FirebaseDatabase
 import dev.gitlive.firebase.database.database

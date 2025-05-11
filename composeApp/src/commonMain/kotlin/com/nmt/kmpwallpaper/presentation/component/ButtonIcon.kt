@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nmt.kmpwallpaper.composeApp.commonMain.Res
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_trending
@@ -66,7 +67,9 @@ fun ButtonIcon(
                     modifier = Modifier.semantics {
                         this.contentDescription = "button content"
                     },
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

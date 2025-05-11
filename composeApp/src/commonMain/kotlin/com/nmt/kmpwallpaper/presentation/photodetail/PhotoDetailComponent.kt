@@ -4,8 +4,10 @@ import coil3.Bitmap
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.decompose.value.update
 import com.nmt.kmpwallpaper.infrastructure.wallpaper.WallpaperManager
 import com.nmt.kmpwallpaper.model.AppSetting
+import com.nmt.kmpwallpaper.util.StringProvider
 
 class PhotoDetailComponent(
     componentContext: ComponentContext
@@ -13,6 +15,9 @@ class PhotoDetailComponent(
     private val _uiState = MutableValue(PhotoUiState())
     val uiState : Value<PhotoUiState> = _uiState
     private var bitmap: Bitmap? = null
+    init {
+        updateUiState()
+    }
     fun onHandlePhoto(action: AppSetting) {
         bitmap?.let { nonNullBitmap ->
             when(action) {
@@ -34,6 +39,18 @@ class PhotoDetailComponent(
     fun onPhotoLoaded(bitmap: Bitmap) {
         if (this.bitmap == null) {
             this.bitmap = bitmap
+        }
+    }
+
+    private fun updateUiState() {
+        _uiState.update {
+            it.copy(
+                actionSettings = listOf(
+                    AppSetting.ActionSetAsHome(nameValue = StringProvider.actionSetHome),
+                    AppSetting.ActionSetAsLock(nameValue = StringProvider.actionSetLock),
+                    AppSetting.ActionSetBoth(nameValue = StringProvider.actionSetBoth)
+                )
+            )
         }
     }
 }

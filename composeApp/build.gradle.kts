@@ -57,6 +57,8 @@ kotlin {
             implementation(coreLibs.kotlin.serialization)
             implementation(libs.paging.compose.common)
             implementation(libs.paging.common)
+            implementation(libs.datastore.preferences)
+            implementation(libs.datastore)
         }
     }
 
