@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import kotlin.math.exp
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -15,7 +16,9 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-    
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
     listOf(
         iosX64(),
         iosArm64(),
@@ -38,21 +41,32 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(compose.runtime)
-            implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
 
-            implementation(projects.kmpCore.coreLibrary)
-            implementation(coreLibs.navigation.decompose)
-            implementation(coreLibs.decompose.extension)
+            api(projects.kmpCore.coreLibrary)
             implementation(libs.decompose.coroutines)
-//            implementation(libs.coil.network.okhttp)
-            implementation(libs.landscapist.coil3)
             implementation(libs.firebase.database)
             implementation(libs.firebase.common)
+            implementation(libs.platform.kore)
+            implementation(libs.coil.compose)
+            implementation(libs.decompose.mvi)
+            implementation(libs.decompose.router)
+            implementation(libs.coil.network.ktor3)
+            implementation(coreLibs.kotlin.serialization)
+            implementation(libs.paging.compose.common)
+            implementation(libs.paging.common)
+            implementation(libs.datastore.preferences)
+            implementation(libs.datastore)
+        }
+    }
+
+    targets.configureEach {
+        compilations.configureEach {
+            compilerOptions.configure {
+                freeCompilerArgs.addAll("-Xexpect-actual-classes")
+            }
         }
     }
 }
