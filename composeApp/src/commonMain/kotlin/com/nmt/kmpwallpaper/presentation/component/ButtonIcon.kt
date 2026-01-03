@@ -2,7 +2,6 @@ package com.nmt.kmpwallpaper.presentation.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -27,8 +25,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.nmt.kmpwallpaper.composeApp.commonMain.Res
-import com.nmt.kmpwallpaper.composeApp.commonMain.ic_trending
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.vectorResource
 
@@ -40,7 +36,7 @@ fun ButtonIcon(
     color: CardColors = CardDefaults.cardColors(),
     iconColor: Color,
     onClick: (String) -> Unit = {},
-    icon: DrawableResource
+    icon: DrawableResource,
 ) {
     var isClicked by rememberSaveable {
         mutableStateOf(false)
@@ -52,7 +48,7 @@ fun ButtonIcon(
             onClick(content)
         },
         shape = shape,
-        colors = color
+        colors = color,
     ) {
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Column(modifier = Modifier.padding(5.dp)) {
@@ -60,16 +56,17 @@ fun ButtonIcon(
                     imageVector = vectorResource(icon),
                     contentDescription = "icon button",
                     modifier = Modifier.align(Alignment.CenterHorizontally).size(24.dp),
-                    tint = iconColor
+                    tint = iconColor,
                 )
                 Text(
                     text = content,
-                    modifier = Modifier.semantics {
-                        this.contentDescription = "button content"
-                    },
+                    modifier =
+                        Modifier.semantics {
+                            this.contentDescription = "button content"
+                        },
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

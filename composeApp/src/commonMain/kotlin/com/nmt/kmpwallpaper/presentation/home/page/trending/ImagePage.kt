@@ -1,30 +1,20 @@
 package com.nmt.kmpwallpaper.presentation.home.page.trending
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import app.cash.paging.LoadStateError
-import app.cash.paging.LoadStateLoading
 import app.cash.paging.compose.LazyPagingItems
 import app.cash.paging.compose.itemContentType
-import app.cash.paging.compose.itemKey
+import com.nmt.kmpwallpaper.infrastructure.resolution.Size
 import com.nmt.kmpwallpaper.model.Photo
 import com.nmt.kmpwallpaper.presentation.component.CardItem
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
@@ -34,15 +24,17 @@ fun ImagePage(
     lazyPhotos: LazyPagingItems<Photo>? = null,
     photos: List<Photo>? = null,
     onItemClick: (Photo) -> Unit,
+    deviceSize: Size = Size,
 ) {
     LazyVerticalGrid(
         modifier = modifier,
         state = state,
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Fixed(if (deviceSize.width > 1080) 3 else 2),
         content = {
             lazyPhotos?.let {
-                items(lazyPhotos.itemCount,
-                    contentType = lazyPhotos.itemContentType()
+                items(
+                    lazyPhotos.itemCount,
+                    contentType = lazyPhotos.itemContentType(),
                 ) { index ->
                     val photo = lazyPhotos[index]
                     photo?.let { nonNullItem ->
@@ -51,7 +43,7 @@ fun ImagePage(
                             photo = nonNullItem,
                             onItemClick = {
                                 onItemClick(nonNullItem)
-                            }
+                            },
                         )
                     }
                 }
@@ -63,13 +55,13 @@ fun ImagePage(
                             photo = it,
                             onItemClick = {
                                 onItemClick(it)
-                            }
+                            },
                         )
                     }
                 }
             }
         },
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     )
 }

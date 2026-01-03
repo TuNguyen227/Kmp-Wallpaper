@@ -4,5 +4,5 @@ import com.nmt.kmpcore.presentation.navigation.Configuration
 
 data class FlashUiState(
     val description: String = "",
-    val navigateState: Configuration? = null
+    val navigateState: Configuration? = null,
 )

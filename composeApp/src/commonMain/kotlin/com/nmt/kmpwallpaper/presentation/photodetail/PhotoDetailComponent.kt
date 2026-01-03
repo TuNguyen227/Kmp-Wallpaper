@@ -10,17 +10,22 @@ import com.nmt.kmpwallpaper.model.AppSetting
 import com.nmt.kmpwallpaper.util.StringProvider
 
 class PhotoDetailComponent(
-    componentContext: ComponentContext
-): ComponentContext by componentContext {
+    componentContext: ComponentContext,
+) : ComponentContext by componentContext {
     private val _uiState = MutableValue(PhotoUiState())
-    val uiState : Value<PhotoUiState> = _uiState
+    val uiState: Value<PhotoUiState> = _uiState
     private var bitmap: Bitmap? = null
+
+    private val _isSetSuccessful = MutableValue(false)
+    val isSetSuccessful: Value<Boolean> = _isSetSuccessful
+
     init {
         updateUiState()
     }
+
     fun onHandlePhoto(action: AppSetting) {
         bitmap?.let { nonNullBitmap ->
-            when(action) {
+            when (action) {
                 is AppSetting.ActionSetAsHome -> {
                     WallpaperManager.setBitmapAsHomeScreen(nonNullBitmap)
                 }
@@ -33,6 +38,7 @@ class PhotoDetailComponent(
                 }
                 else -> {}
             }
+            _isSetSuccessful.update { true }
         }
     }
 
@@ -45,12 +51,18 @@ class PhotoDetailComponent(
     private fun updateUiState() {
         _uiState.update {
             it.copy(
-                actionSettings = listOf(
-                    AppSetting.ActionSetAsHome(nameValue = StringProvider.actionSetHome),
-                    AppSetting.ActionSetAsLock(nameValue = StringProvider.actionSetLock),
-                    AppSetting.ActionSetBoth(nameValue = StringProvider.actionSetBoth)
-                )
+                actionSettings =
+                    listOf(
+                        AppSetting.ActionSetAsHome(nameValue = StringProvider.actionSetHome),
+                        AppSetting.ActionSetAsLock(nameValue = StringProvider.actionSetLock),
+                        AppSetting.ActionSetBoth(nameValue = StringProvider.actionSetBoth),
+                    ),
             )
         }
+    }
+
+    fun onClear() {
+        println("Check on clear")
+        WallpaperManager.clear(bitmap)
     }
 }

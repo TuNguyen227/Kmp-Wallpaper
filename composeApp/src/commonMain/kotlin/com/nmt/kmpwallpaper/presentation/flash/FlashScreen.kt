@@ -22,42 +22,55 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
+import app.lexilabs.basic.ads.composable.NativeAd
+import app.lexilabs.basic.ads.composable.rememberNativeAd
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.nmt.kmpcore.presentation.navigation.Configuration
 import com.nmt.kmpwallpaper.composeApp.commonMain.Res
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_wallpaper
 import org.jetbrains.compose.resources.vectorResource
 
+@OptIn(DependsOnGoogleMobileAds::class)
 @Composable
 fun FlashScreenRoute(
     component: FlashComponent,
-    onNavigate: (Configuration) -> Unit
+    onNavigate: (Configuration) -> Unit,
 ) {
     val uiState by component.uiState.subscribeAsState()
+    val nativeAdId by component.nativeAdId.subscribeAsState()
     LaunchedEffect(uiState.navigateState) {
         uiState.navigateState?.let {
             onNavigate(it)
         }
     }
     FlashScreen(
-        uiState = uiState
+        uiState = uiState,
+        nativeAdId = nativeAdId,
     )
 }
 
+@OptIn(DependsOnGoogleMobileAds::class)
 @Composable
 private fun FlashScreen(
-    uiState: FlashUiState
+    uiState: FlashUiState,
+    nativeAdId: String = "",
 ) {
+    val nativeAd by rememberNativeAd(adUnitId = nativeAdId)
     Column(
-        modifier = Modifier.fillMaxSize().background(
-            color = MaterialTheme.colorScheme.background
-        )
+        modifier =
+            Modifier.fillMaxSize().background(
+                color = MaterialTheme.colorScheme.background,
+            ),
     ) {
         Box(
             modifier = Modifier.fillMaxWidth().fillMaxHeight(0.5f),
         ) {
-            Column(modifier = Modifier.fillMaxSize()
-                , horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Bottom,
+            ) {
                 Image(
                     imageVector = vectorResource(Res.drawable.ic_wallpaper),
                     contentDescription = "flash screen icon",
@@ -67,34 +80,41 @@ private fun FlashScreen(
                 Text(
                     "WallyArt",
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 20.dp)
-                        .semantics {
-                            this.contentDescription = "App name"
-                        }
-                    ,
-                    color = MaterialTheme.colorScheme.primary
+                    modifier =
+                        Modifier
+                            .padding(bottom = 20.dp)
+                            .semantics {
+                                this.contentDescription = "App name"
+                            },
+                    color = MaterialTheme.colorScheme.primary,
                 )
 
                 Text(
                     uiState.description,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 20.dp)
-                        .semantics {
-                            this.contentDescription = "App short description"
-                        }
-                    ,
-                    color = MaterialTheme.colorScheme.primary
+                    modifier =
+                        Modifier
+                            .padding(bottom = 20.dp)
+                            .semantics {
+                                this.contentDescription = "App short description"
+                            },
+                    color = MaterialTheme.colorScheme.primary,
                 )
 
                 LinearProgressIndicator(
-                    modifier = Modifier.height(5.dp).width(100.dp)
-                        .semantics {
-                            this.contentDescription = "flash progress bar"
-                        }
-                    ,
+                    modifier =
+                        Modifier
+                            .height(5.dp)
+                            .width(100.dp)
+                            .semantics {
+                                this.contentDescription = "flash progress bar"
+                            },
                     color = MaterialTheme.colorScheme.primaryContainer,
                     trackColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
+                if (nativeAdId.isNotEmpty()) {
+                    NativeAd(nativeAd)
+                }
             }
         }
     }

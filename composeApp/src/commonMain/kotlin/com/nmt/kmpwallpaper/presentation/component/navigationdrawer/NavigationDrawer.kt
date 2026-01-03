@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,24 +44,32 @@ import org.jetbrains.compose.resources.vectorResource
 fun DrawerHeader(
     shouldShowIcon: Boolean = false,
     onBack: () -> Unit = {},
-    title: String
+    title: String,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(50.dp),
     ) {
         if (shouldShowIcon) {
             Icon(
-                modifier = Modifier.scale(0.6f).clickable { onBack() }.align(Alignment.TopStart).padding(start = 16.dp)
-                ,
+                modifier =
+                    Modifier
+                        .scale(0.6f)
+                        .clickable { onBack() }
+                        .align(Alignment.TopStart)
+                        .padding(start = 16.dp),
                 imageVector = vectorResource(Res.drawable.ic_back),
                 contentDescription = "icon back settings",
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
             )
         }
-        Text(text = title, style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.align(Alignment.Center))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.align(Alignment.Center),
+        )
     }
 }
 
@@ -74,35 +80,55 @@ fun DrawerBody(
     itemTextStyle: TextStyle = TextStyle(fontSize = 18.sp),
     onItemClick: (AppSetting) -> Unit,
     viewingDetail: Boolean = false,
-    onLanguageClick: (Language) -> Unit = {}
+    onLanguageClick: (Language) -> Unit = {},
+    onPrivacyClick: () -> Unit = {},
+    onTermOfUseClick: () -> Unit = {},
+    onRating: () -> Unit = {},
+    onBack: Boolean = false,
 ) {
     Surface(
         modifier = Modifier.padding(16.dp),
         color = MaterialTheme.colorScheme.background,
         shadowElevation = 10.dp,
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
     ) {
         var clickedSettings by remember {
             mutableStateOf<AppSetting?>(null)
         }
+        if (onBack) {
+            clickedSettings = null
+        }
         when {
-            (clickedSettings is AppSetting.Language ||
-            clickedSettings is AppSetting.Rating ||
-            clickedSettings is AppSetting.Privacy ||
-            clickedSettings is  AppSetting.TermNCondition) && viewingDetail  -> {
+            clickedSettings is AppSetting.Language && viewingDetail -> {
                 DrawerSettingDetail(
                     setting = clickedSettings ?: AppSetting.Language(),
-                    onItemClick = onLanguageClick
+                    onItemClick = onLanguageClick,
                 )
             }
             else -> {
                 LazyColumn(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(items) { item ->
                         DrawerItem(
-                            modifier = Modifier.clickable {
-                                onItemClick(item)
-                                clickedSettings = item
-                            },
+                            modifier =
+                                Modifier.clickable {
+                                    onItemClick(item)
+                                    clickedSettings = item
+                                    when (item) {
+                                        is AppSetting.Privacy -> {
+                                            onPrivacyClick()
+                                            onItemClick(AppSetting.Privacy())
+                                        }
+                                        is AppSetting.TermNCondition -> {
+                                            onTermOfUseClick()
+                                            onItemClick(AppSetting.TermNCondition())
+                                        }
+                                        is AppSetting.Rating -> {
+                                            onRating()
+                                            onItemClick(AppSetting.Rating())
+                                        }
+                                        else -> {}
+                                    }
+                                },
                             content = item.name,
                             iconVector = vectorResource(item.icon),
                             endContent = {
@@ -111,7 +137,7 @@ fun DrawerBody(
                                         Icon(
                                             vectorResource(LanguageProvider.getLocaleLanguage().icon),
                                             contentDescription = "locale language icon",
-                                            tint = Color.Unspecified
+                                            tint = Color.Unspecified,
                                         )
                                     }
 
@@ -119,11 +145,11 @@ fun DrawerBody(
                                         Icon(
                                             vectorResource(Res.drawable.ic_forward),
                                             contentDescription = "icon forward",
-                                            tint = Color.Unspecified
+                                            tint = Color.Unspecified,
                                         )
                                     }
                                 }
-                            }
+                            },
                         )
 
                         items.lastOrNull()?.let { nonNullLastItem ->
@@ -131,9 +157,10 @@ fun DrawerBody(
                                 HorizontalDivider(
                                     modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
                                     thickness = 0.5.dp,
-                                    color = MaterialTheme.colorScheme.primary.copy(
-                                        alpha = 0.25f
-                                    )
+                                    color =
+                                        MaterialTheme.colorScheme.primary.copy(
+                                            alpha = 0.25f,
+                                        ),
                                 )
                             }
                         }
@@ -147,29 +174,31 @@ fun DrawerBody(
 @Composable
 private fun DrawerSettingDetail(
     setting: AppSetting,
-    onItemClick: (Language) -> Unit
-    ) {
-    when(setting) {
+    onItemClick: (Language) -> Unit,
+) {
+    when (setting) {
         is AppSetting.Language -> {
-            LazyColumn(modifier = Modifier.padding(vertical = 10.dp),verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            LazyColumn(modifier = Modifier.padding(vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 val list = LanguageProvider.getAllSupportLanguages()
                 items(list) {
                     val name = it::class.simpleName ?: it.code
                     DrawerItem(
-                        modifier = Modifier.padding(horizontal = 10.dp).clickable {
-                            onItemClick(it)
-                        },
+                        modifier =
+                            Modifier.padding(horizontal = 10.dp).clickable {
+                                onItemClick(it)
+                            },
                         content = name,
-                        iconDrawable = it.icon
+                        iconDrawable = it.icon,
                     )
                     list.lastOrNull()?.let { nonNullLastItem ->
                         if (nonNullLastItem != it) {
                             HorizontalDivider(
                                 modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                                 thickness = 0.5.dp,
-                                color = MaterialTheme.colorScheme.primary.copy(
-                                    alpha = 0.25f
-                                )
+                                color =
+                                    MaterialTheme.colorScheme.primary.copy(
+                                        alpha = 0.25f,
+                                    ),
                             )
                         }
                     }
@@ -186,10 +215,10 @@ private fun DrawerItem(
     content: String,
     endContent: @Composable () -> Unit = {},
     iconVector: ImageVector? = null,
-    iconDrawable: DrawableResource? = null
+    iconDrawable: DrawableResource? = null,
 ) {
     Card(
-        modifier = modifier
+        modifier = modifier,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             iconDrawable?.let {
@@ -197,7 +226,7 @@ private fun DrawerItem(
                     modifier = Modifier.padding(start = 10.dp),
                     imageVector = vectorResource(it),
                     contentDescription = "Drawer item icon $content",
-                    tint = Color.Unspecified
+                    tint = Color.Unspecified,
                 )
             }
             iconVector?.let {
@@ -205,14 +234,14 @@ private fun DrawerItem(
                     modifier = Modifier.padding(start = 10.dp),
                     imageVector = iconVector,
                     contentDescription = "Drawer item icon $content",
-                    tint = Color.Unspecified
+                    tint = Color.Unspecified,
                 )
             }
             Text(
                 text = content,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f).padding(start = 4.dp),
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
             endContent.invoke()
         }

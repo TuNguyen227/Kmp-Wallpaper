@@ -1,6 +1,6 @@
 package com.nmt.kmpwallpaper.presentation.photodetail
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -32,6 +33,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import app.lexilabs.basic.ads.AdUnitId
+import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
+import app.lexilabs.basic.ads.InterstitialAdHandler
+import app.lexilabs.basic.ads.composable.InterstitialAd
+import app.lexilabs.basic.ads.composable.rememberInterstitialAd
 import coil3.Bitmap
 import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
@@ -45,40 +51,63 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.nmt.kmpwallpaper.composeApp.commonMain.Res
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_back
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_painter
-import com.nmt.kmpwallpaper.model.Photo
-import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.DrawerBody
 import com.nmt.kmpwallpaper.model.AppSetting
+import com.nmt.kmpwallpaper.model.Photo
+import com.nmt.kmpwallpaper.network.AdsManager
+import com.nmt.kmpwallpaper.presentation.component.navigationdrawer.DrawerBody
+import io.github.alexzhirkevich.compottie.LottieCompositionSpec
+import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
+import io.github.alexzhirkevich.compottie.rememberLottieComposition
+import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.vectorResource
 
+@OptIn(DependsOnGoogleMobileAds::class)
 @Composable
 fun PhotoDetailRoute(
     component: PhotoDetailComponent,
     photo: Photo,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
 ) {
+    val isSetSuccessful by component.isSetSuccessful.subscribeAsState()
+    val interstitialAd by rememberInterstitialAd(adUnitId = AdsManager.bannerid ?: AdUnitId.INTERSTITIAL_DEFAULT)
     PhotoDetailScreen(
         component = component,
         photo = photo,
-        onNavigateBack = onNavigateBack,
+        onNavigateBack = {
+            component.onClear()
+            onNavigateBack()
+        },
         onHandlePhoto = component::onHandlePhoto,
-        onPhotoLoaded = component::onPhotoLoaded
+        onPhotoLoaded = component::onPhotoLoaded,
+        isSetImageSuccessful = isSetSuccessful,
+        onCheckingAnimationEnd = {
+            interstitialAd.show()
+        },
+        interstitialAd = interstitialAd,
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, DependsOnGoogleMobileAds::class)
 @Composable
 fun PhotoDetailScreen(
     component: PhotoDetailComponent,
     photo: Photo,
     onNavigateBack: () -> Unit,
     onHandlePhoto: (AppSetting) -> Unit,
-    onPhotoLoaded: (Bitmap) -> Unit
+    onPhotoLoaded: (Bitmap) -> Unit,
+    isSetImageSuccessful: Boolean? = null,
+    onCheckingAnimationEnd: () -> Unit,
+    interstitialAd: InterstitialAdHandler,
 ) {
     val uiState by component.uiState.subscribeAsState()
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
+        AdsManager.interstitialid?.let {
+            InterstitialAd(interstitialAd)
+        }
         val localDensity = LocalDensity.current
         var centerBottomPosition by remember {
             mutableStateOf(Offset.Zero)
@@ -87,45 +116,41 @@ fun PhotoDetailScreen(
             mutableStateOf(false)
         }
         Icon(
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp)
-                .size(32.dp).align(Alignment.TopStart)
-                .clickable {
-                    println(
-                        "onNavigateBack"
-                    )
-                    onNavigateBack()
-                }
-            ,
+            modifier =
+                Modifier
+                    .padding(start = 16.dp, top = 64.dp)
+                    .size(32.dp)
+                    .align(Alignment.TopStart)
+                    .clickable {
+                        onNavigateBack()
+                    },
             imageVector = vectorResource(Res.drawable.ic_back),
-            contentDescription = "Icon back"
+            contentDescription = "Icon back",
         )
         PhotoPreview(
-            modifier = Modifier.align(Alignment.Center)
-            ,
+            modifier = Modifier.align(Alignment.Center),
             photo = photo,
             onPosition = {
                 centerBottomPosition = it
             },
-            onPhotoLoaded = onPhotoLoaded
+            onPhotoLoaded = onPhotoLoaded,
         )
         Icon(
-            modifier = Modifier
-                .offset(
-                    x = with(localDensity) { centerBottomPosition.x.toDp() - 36.5.dp } ,
-                    y = with(localDensity) { centerBottomPosition.y.toDp() - 36.5.dp }
-                )
-                .shadow(
-                    elevation = 10.dp,
-                    shape = CircleShape
-                )
-                .clip(CircleShape)
-                .clickable {
-                    isHandlePhoto = true
-                }
-            ,
+            modifier =
+                Modifier
+                    .offset(
+                        x = with(localDensity) { centerBottomPosition.x.toDp() - 36.5.dp },
+                        y = with(localDensity) { centerBottomPosition.y.toDp() - 36.5.dp },
+                    ).shadow(
+                        elevation = 10.dp,
+                        shape = CircleShape,
+                    ).clip(CircleShape)
+                    .clickable {
+                        isHandlePhoto = true
+                    },
             imageVector = vectorResource(Res.drawable.ic_painter),
             contentDescription = "Icon back",
-            tint = Color.Unspecified
+            tint = Color.Unspecified,
         )
 
         if (isHandlePhoto) {
@@ -134,22 +159,56 @@ fun PhotoDetailScreen(
                     isHandlePhoto = false
                 },
                 contentColor = MaterialTheme.colorScheme.background,
-                dragHandle = null
+                dragHandle = null,
             ) {
-                Box(modifier = Modifier.fillMaxWidth()
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-
                     DrawerBody(
                         items = uiState.actionSettings,
                         onItemClick = {
                             onHandlePhoto(it)
                             isHandlePhoto = false
                         },
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
                     )
                 }
             }
         }
+        if (isSetImageSuccessful == true) {
+            CheckIconLottie(
+                modifier = Modifier.align(Alignment.Center).scale(3f),
+                onEnd = onCheckingAnimationEnd,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class, DependsOnGoogleMobileAds::class)
+@Composable
+fun CheckIconLottie(
+    modifier: Modifier,
+    onEnd: () -> Unit,
+) {
+    val composition by rememberLottieComposition {
+        LottieCompositionSpec.JsonString(
+            Res.readBytes("files/check.json").decodeToString(),
+        )
+    }
+    val progress by animateLottieCompositionAsState(composition = composition)
+
+    if (progress < 1f) {
+        Image(
+            modifier = modifier,
+            painter =
+                rememberLottiePainter(
+                    composition = composition,
+                    progress = { progress },
+                ),
+            contentDescription = "Lottie animation",
+        )
+    } else {
+        onEnd()
     }
 }
 
@@ -158,7 +217,7 @@ private fun PhotoPreview(
     modifier: Modifier,
     photo: Photo,
     onPosition: (Offset) -> Unit,
-    onPhotoLoaded: (Bitmap) -> Unit
+    onPhotoLoaded: (Bitmap) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     var centerBottomPosition by remember {
@@ -170,37 +229,39 @@ private fun PhotoPreview(
         }
     }
     Surface(
-        modifier = modifier
-            .fillMaxWidth(0.9f)
-            .onGloballyPositioned { layoutCoordinates ->
-                // Get the size and position of the layout
-                //if (centerBottomPosition == Offset.Zero) {
-                val size = layoutCoordinates.size
-                val position = layoutCoordinates.positionInWindow()
+        modifier =
+            modifier
+                .fillMaxWidth(0.9f)
+                .onGloballyPositioned { layoutCoordinates ->
+                    // Get the size and position of the layout
+                    // if (centerBottomPosition == Offset.Zero) {
+                    val size = layoutCoordinates.size
+                    val position = layoutCoordinates.positionInWindow()
 
-                // Calculate center bottom position
-                val centerX = position.x + size.width / 2
-                val bottomY = position.y + size.height
+                    // Calculate center bottom position
+                    val centerX = position.x + size.width / 2
+                    val bottomY = position.y + size.height
 
-                // Update the state with the center bottom position
-                centerBottomPosition = Offset(centerX, bottomY)
-                //}
-            }
-        ,
+                    // Update the state with the center bottom position
+                    centerBottomPosition = Offset(centerX, bottomY)
+                    // }
+                },
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.background,
-        shadowElevation = 10.dp
+        shadowElevation = 10.dp,
     ) {
-        val imageRequest = ImageRequest.Builder(LocalPlatformContext.current)
-            .data(photo.imageUrl)
-            .memoryCacheKey(photo.id.toString())
-            .diskCachePolicy(CachePolicy.ENABLED)
-            .memoryCachePolicy(CachePolicy.ENABLED)
-            .allowConversionToBitmap(true)
-            .build()
+        val imageRequest =
+            ImageRequest
+                .Builder(LocalPlatformContext.current)
+                .data(photo.imageUrl)
+                .memoryCacheKey(photo.id.toString())
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .allowConversionToBitmap(true)
+                .build()
         val loader = SingletonImageLoader.get(LocalPlatformContext.current)
         scope.launch {
-            when(val result = loader.execute(imageRequest)) {
+            when (val result = loader.execute(imageRequest)) {
                 is SuccessResult -> {
                     onPhotoLoaded(result.image.toBitmap())
                 }
@@ -210,7 +271,7 @@ private fun PhotoPreview(
         AsyncImage(
             model = imageRequest.data,
             contentDescription = "Detail Item",
-            imageLoader = loader
+            imageLoader = loader,
         )
     }
 }

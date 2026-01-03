@@ -5,10 +5,8 @@ import io.ktor.client.statement.HttpResponse
 interface AppSourceApi {
     suspend fun search(
         query: String,
-        page: String
-    ) : HttpResponse
+        page: String,
+    ): HttpResponse
 
-    suspend fun getNews(
-        page: String
-    ) : HttpResponse
+    suspend fun getNews(page: String): HttpResponse
 }

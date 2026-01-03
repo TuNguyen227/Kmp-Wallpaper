@@ -13,43 +13,49 @@ import kotlinx.coroutines.flow.update
 import org.koin.core.component.KoinComponent
 
 class DefaultImageRepository(
-    private val appSourceApi: AppSourceApi
-) : ImageRepository,KoinComponent {
+    private val appSourceApi: AppSourceApi,
+) : ImageRepository,
+    KoinComponent {
     private val query = MutableStateFlow<String?>(null)
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val pagingTrendingData: Flow<PagingData<Photo>> = query.flatMapLatest { input ->
-        Pager(
-            config = PagingConfig(
-                pageSize = 16,
-                prefetchDistance = 4
-            ),
-            pagingSourceFactory = {
-                ImagePagingSource(
-                    apiInvoke = { page ->
-                        appSourceApi.search(
-                            query = input ?:"trending",
-                            page = page.toString()
+    override val pagingTrendingData: Flow<PagingData<Photo>> =
+        query.flatMapLatest { input ->
+            Pager(
+                config =
+                    PagingConfig(
+                        pageSize = 16,
+                        prefetchDistance = 4,
+                    ),
+                pagingSourceFactory = {
+                    ImagePagingSource(
+                        apiInvoke = { page ->
+                            appSourceApi.search(
+                                query = input ?: "trending",
+                                page = page.toString(),
                             )
-                    }
-                )
-            },
-        ).flow
-    }
-    override val pagingNewsData: Lazy<Flow<PagingData<Photo>>> = lazy {
-        Pager(
-            config = PagingConfig(
-                pageSize = 16,
-                prefetchDistance = 4
-            ),
-            pagingSourceFactory = {
-                ImagePagingSource(
-                    apiInvoke = { page ->
-                        appSourceApi.getNews(page = page.toString())
-                    }
-                )
-            },
-        ).flow
-    }
+                        },
+                    )
+                },
+            ).flow
+        }
+    override val pagingNewsData: Lazy<Flow<PagingData<Photo>>> =
+        lazy {
+            Pager(
+                config =
+                    PagingConfig(
+                        pageSize = 16,
+                        prefetchDistance = 4,
+                    ),
+                pagingSourceFactory = {
+                    ImagePagingSource(
+                        apiInvoke = { page ->
+                            appSourceApi.getNews(page = page.toString())
+                        },
+                    )
+                },
+            ).flow
+        }
 
     override fun query(query: String?) {
         this.query.update { query }

@@ -10,41 +10,41 @@ import com.arkivanov.decompose.value.update
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.nmt.kmpcore.infrastructure.provider.Language
 import com.nmt.kmpcore.infrastructure.provider.LanguageProvider
+import com.nmt.kmpwallpaper.network.APIHandler
+import com.nmt.kmpwallpaper.network.AdsManager
 import com.nmt.kmpwallpaper.presentation.ChildConfiguration
 import com.nmt.kmpwallpaper.util.StringProvider
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.IO
+import dev.gitlive.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.produceIn
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import kotlin.getValue
 
 class FlashComponent(
     componentContext: ComponentContext,
-    private val dataStore : DataStore<Preferences>
-) : ComponentContext by componentContext  {
+    private val dataStore: DataStore<Preferences>,
+) : KoinComponent,
+    ComponentContext by componentContext {
     private val _uiState = MutableValue(FlashUiState())
-    val uiState : Value<FlashUiState> = _uiState
+    val uiState: Value<FlashUiState> = _uiState
+
+    private val _nativeAdId = MutableValue<String>("")
+
+    val nativeAdId: Value<String> = _nativeAdId
+    private val firebaseDatabase by inject<FirebaseDatabase>()
     private val scope = coroutineScope()
+
     init {
         scope.launch {
             _uiState.update {
                 it.copy(
-                    description = "Colorful your world!"
+                    description = "Colorful your world!",
                 )
             }
             dataStore.data.take(1).collect { data ->
-                println(
-                    "flow data ${data.asMap()}"
-                )
                 val allKey = StringProvider.getAllStringMap().map { it.key }
                 val map = StringProvider.getAllStringMap().toMutableMap()
 
@@ -55,15 +55,27 @@ class FlashComponent(
                 }
 
                 val language = data[stringPreferencesKey(StringProvider::currentLanguage.name)] ?: "en"
-                println(
-                    "language $language"
-                )
                 StringProvider.updateAllStringByLanguage(map = map, dataStore = dataStore, language = language)
                 LanguageProvider.changeCurrentLanguage(Language.fromCode(language) ?: Language.English)
-                _uiState.update {
-                    it.copy(
-                        navigateState = ChildConfiguration.Home
-                    )
+                coroutineScope().launch {
+                    AdsManager.load()
+                    AdsManager.nativeid?.let { id ->
+                        _nativeAdId.update {
+                            id
+                        }
+                    }
+                }
+                firebaseDatabase.reference("Api").valueEvents.collect { it ->
+                    val snapshot = it.value<List<String>>()
+                    snapshot.randomOrNull()?.let { key ->
+                        APIHandler.setKey(key)
+                    }
+                    _uiState.update {
+                        it.copy(
+                            navigateState = ChildConfiguration.Home,
+                        )
+                    }
+                    this.cancel()
                 }
             }
         }

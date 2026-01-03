@@ -7,7 +7,16 @@ import com.nmt.kmpwallpaper.presentation.home.HomeComponent
 import com.nmt.kmpwallpaper.presentation.photodetail.PhotoDetailComponent
 
 sealed interface Child : AppChild {
-    data class FlashScreen(val component: FlashComponent) : AppChild
-    data class Home(val component: HomeComponent) : AppChild
-    data class PhotoDetail(val component: PhotoDetailComponent, val photo: Photo) : AppChild
+    data class FlashScreen(
+        val component: FlashComponent,
+    ) : AppChild
+
+    data class Home(
+        val component: HomeComponent,
+    ) : AppChild
+
+    data class PhotoDetail(
+        val component: PhotoDetailComponent,
+        val photo: Photo,
+    ) : AppChild
 }

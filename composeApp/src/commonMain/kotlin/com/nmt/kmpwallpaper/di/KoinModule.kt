@@ -7,18 +7,20 @@ import com.nmt.kmpwallpaper.data.di.provideDataModule
 import com.nmt.kmpwallpaper.network.di.provideNetworkModule
 import io.ktor.client.request.header
 
-val libraryModule = listOf(
-    provideTranslationHttpClientModule(
-        headers = {
-            header("Ocp-Apim-Subscription-Key","Key")
-            header("Ocp-Apim-Subscription-Region","eastus")
-        }
-    ),
-    provideTranslateRepository,
-    domainModule
-)
+val libraryModule =
+    listOf(
+        provideTranslationHttpClientModule(
+            headers = {
+                header("Ocp-Apim-Subscription-Key", "")
+                header("Ocp-Apim-Subscription-Region", "eastus")
+            },
+        ),
+        provideTranslateRepository,
+        domainModule,
+    )
 
-val koinModules = listOf(
-    provideNetworkModule(),
-    provideDataModule()
-) + libraryModule
+val koinModules =
+    listOf(
+        provideNetworkModule(),
+        provideDataModule(),
+    ) + libraryModule

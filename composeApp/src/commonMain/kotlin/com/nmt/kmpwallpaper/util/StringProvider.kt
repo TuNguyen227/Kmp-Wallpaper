@@ -40,10 +40,8 @@ object StringProvider {
         private set
 
     private val map = mutableMapOf<String, String>()
+
     init {
-        println(
-            "flow data String init"
-        )
         with(map) {
             put(::category.name, category)
             put(::viewAll.name, viewAll)
@@ -63,11 +61,13 @@ object StringProvider {
         }
     }
 
-    fun getAllStringMap(): Map<String,String> {
-        return map
-    }
+    fun getAllStringMap(): Map<String, String> = map
 
-    suspend fun updateAllStringByLanguage(map: Map<String, String>, language: String, dataStore: DataStore<Preferences>) {
+    suspend fun updateAllStringByLanguage(
+        map: Map<String, String>,
+        language: String,
+        dataStore: DataStore<Preferences>,
+    ) {
         map.forEach { input ->
             this.map.forEach { entry ->
                 if (input.key == entry.key) {
@@ -83,7 +83,10 @@ object StringProvider {
         dataStore.edit { it[stringPreferencesKey(::currentLanguage.name)] = language }
     }
 
-    private fun updateString(input: String, newValue: String) {
+    private fun updateString(
+        input: String,
+        newValue: String,
+    ) {
         when (input) {
             ::category.name -> {
                 category = newValue

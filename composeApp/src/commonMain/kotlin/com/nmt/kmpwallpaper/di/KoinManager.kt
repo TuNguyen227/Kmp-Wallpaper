@@ -5,13 +5,13 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
 object KoinManager {
-    var koin : Koin? = null
-    fun initKoin(appDeclaration: KoinAppDeclaration? = null) : Koin {
-        return startKoin {
+    var koin: Koin? = null
+
+    fun initKoin(appDeclaration: KoinAppDeclaration? = null): Koin =
+        startKoin {
             appDeclaration?.invoke(this)
             modules(koinModules)
         }.koin.apply {
             koin = this
         }
-    }
 }

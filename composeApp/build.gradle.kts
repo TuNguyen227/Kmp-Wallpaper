@@ -1,5 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import kotlin.math.exp
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     kotlin("plugin.serialization") version "2.1.10"
     id("com.google.gms.google-services") version "4.4.2"
+    alias(libs.plugins.ktlint)
 }
 
 kotlin {
@@ -22,7 +23,7 @@ kotlin {
     listOf(
         iosX64(),
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
@@ -30,14 +31,15 @@ kotlin {
             export(projects.kmpCore.coreLibrary)
         }
     }
-    
+
     sourceSets {
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.common.ktx)
+            implementation(libs.google.play.services.ads)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -59,6 +61,10 @@ kotlin {
             implementation(libs.paging.common)
             implementation(libs.datastore.preferences)
             implementation(libs.datastore)
+
+            implementation(libs.app.rating)
+            implementation(libs.bundles.compotie)
+            implementation(libs.basic.ads)
         }
     }
 
@@ -67,6 +73,21 @@ kotlin {
             compilerOptions.configure {
                 freeCompilerArgs.addAll("-Xexpect-actual-classes")
             }
+        }
+    }
+
+    ktlint {
+        verbose.set(true)
+        outputToConsole.set(true)
+        coloredOutput.set(true)
+        ignoreFailures = true
+        reporters {
+            reporter(ReporterType.CHECKSTYLE)
+            reporter(ReporterType.JSON)
+            reporter(ReporterType.HTML)
+        }
+        filter {
+            exclude("**/style-violations.kt")
         }
     }
 }
@@ -79,14 +100,32 @@ compose.resources {
 
 android {
     namespace = "com.nmt.kmpwallpaper"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("../wallyart.keystore")
+            storePassword = "123456"
+            keyAlias = "wallyart"
+            keyPassword = "123456"
+        }
+    }
 
     defaultConfig {
         applicationId = "com.nmt.kmpwallpaper"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
+        targetSdk =
+            libs.versions.android.targetSdk
+                .get()
+                .toInt()
+        versionCode = 4
+        versionName = "1.4"
     }
     packaging {
         resources {
@@ -96,6 +135,11 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+//            proguardFiles(
+//                getDefaultProguardFile("proguard-android-optimize.txt"),
+//                "proguard-rules.pro"
+//            )
         }
     }
     compileOptions {
@@ -103,4 +147,3 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
-

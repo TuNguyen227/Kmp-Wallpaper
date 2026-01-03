@@ -10,7 +10,7 @@ data class SearchResponse(
     val page: Int,
     @SerialName("per_page") val perPage: Int,
     val photos: List<PhotoResponse>,
-    @SerialName("next_page") val nextPage: String? = null
+    @SerialName("next_page") val nextPage: String? = null,
 )
 
 @Serializable
@@ -25,14 +25,13 @@ data class PhotoResponse(
     @SerialName("avg_color") val avgColor: String,
     val src: PhotoSrc,
     val liked: Boolean,
-    val alt: String
+    val alt: String,
 ) {
-    fun toPhoto() : Photo {
-        return Photo(
+    fun toPhoto(): Photo =
+        Photo(
             imageUrl = src.portrait,
-            id = id
+            id = id,
         )
-    }
 }
 
 @Serializable
@@ -44,5 +43,5 @@ data class PhotoSrc(
     val small: String,
     val portrait: String,
     val landscape: String,
-    val tiny: String
+    val tiny: String,
 )

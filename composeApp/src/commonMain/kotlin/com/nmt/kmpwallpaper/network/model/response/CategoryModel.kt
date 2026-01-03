@@ -6,12 +6,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CategoryModel(
     val name: String,
-    val url: String
+    val url: String,
 ) {
-    fun toPhoto() : Photo {
-        return Photo(
+    fun toPhoto(): Photo =
+        Photo(
             name = name,
-            imageUrl = url
+            imageUrl = url,
         )
-    }
 }

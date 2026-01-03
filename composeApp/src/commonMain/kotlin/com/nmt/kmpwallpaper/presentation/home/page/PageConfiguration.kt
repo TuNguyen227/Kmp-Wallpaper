@@ -18,7 +18,15 @@ sealed interface PageConfiguration {
 }
 
 sealed interface Page {
-    data class Trending(val component: TrendingComponent) : Page
-    data class Recent(val component: RecentComponent) : Page
-    data class New(val component: NewComponent) : Page
+    data class Trending(
+        val component: TrendingComponent,
+    ) : Page
+
+    data class Recent(
+        val component: RecentComponent,
+    ) : Page
+
+    data class New(
+        val component: NewComponent,
+    ) : Page
 }

@@ -4,7 +4,7 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 
 class TrendingComponent(
-    componentContext: ComponentContext
-): ComponentContext by componentContext {
-    val scrollState = MutableValue(Pair(0,0))
+    componentContext: ComponentContext,
+) : ComponentContext by componentContext {
+    val scrollState = MutableValue(Pair(0, 0))
 }

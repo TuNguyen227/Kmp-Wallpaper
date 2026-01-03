@@ -11,4 +11,6 @@ expect object WallpaperManager {
     fun setBitmapAsLockScreen(bitmap: Bitmap)
 
     fun setBitMapAsBothScreens(bitmap: Bitmap)
+
+    fun clear(bitmap: Bitmap?)
 }
