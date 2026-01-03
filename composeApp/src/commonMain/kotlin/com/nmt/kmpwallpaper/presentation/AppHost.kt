@@ -21,6 +21,7 @@ import com.arkivanov.decompose.router.stack.push
 import com.nmt.kmpcore.presentation.navigation.RootComponent
 import com.nmt.kmpcore.presentation.theme.getLightColorScheme
 import com.nmt.kmpcore.presentation.theme.getTypography
+import com.nmt.kmpwallpaper.infrastructure.resolution.Size
 import com.nmt.kmpwallpaper.presentation.flash.FlashScreenRoute
 import com.nmt.kmpwallpaper.presentation.home.HomeScreen
 import com.nmt.kmpwallpaper.presentation.photodetail.PhotoDetailRoute
@@ -31,7 +32,7 @@ import io.github.xxfast.decompose.router.stack.rememberRouter
 import kotlinx.serialization.Serializable
 
 @Composable
-fun AppHost(root: RootComponent) {
+fun AppHost(root: RootComponent, deviceSize: Size) {
     MaterialTheme(
         colorScheme = getLightColorScheme(),
         typography = getTypography()
@@ -58,7 +59,8 @@ fun AppHost(root: RootComponent) {
                                 data
                             )
                         )
-                    }
+                    },
+                    deviceSize
                 )
                 is Child.FlashScreen -> FlashScreenRoute(
                     component = instance.component,

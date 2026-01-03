@@ -68,6 +68,7 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.nmt.kmpwallpaper.composeApp.commonMain.Res
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_drawer
 import com.nmt.kmpwallpaper.composeApp.commonMain.ic_wallpaper
+import com.nmt.kmpwallpaper.infrastructure.resolution.Size
 import com.nmt.kmpwallpaper.model.Photo
 import com.nmt.kmpwallpaper.presentation.component.ButtonIcon
 import com.nmt.kmpwallpaper.presentation.component.CardItem
@@ -82,7 +83,8 @@ import org.jetbrains.compose.resources.vectorResource
 @Composable
 fun HomeScreen(
     component: HomeComponent,
-    onPhotoClick: (Photo) -> Unit
+    onPhotoClick: (Photo) -> Unit,
+    deviceSize: Size = Size
 ) {
     val uiState by component.uiState.subscribeAsState()
     val trendingImages = component.trendingImages.collectAsLazyPagingItems()
@@ -175,6 +177,7 @@ fun HomeScreen(
                     component.onTrendingPhotoClicked(photo)
                 },
                 onCategorySheetDismiss = component::onCategorySheetDismiss,
+                deviceSize = deviceSize
             )
         }
     }
@@ -191,7 +194,8 @@ private fun HomeContent(
     recentImages: List<Photo>,
     onCategoryClick: (Photo) -> Unit,
     onCategorySheetDismiss: (List<Photo>) -> Unit,
-    onPhotoClick: (Photo) -> Unit
+    onPhotoClick: (Photo) -> Unit,
+    deviceSize: Size
 ) {
     val categoriesState = remember {
         mutableStateMapOf<String, Boolean>()
@@ -220,7 +224,8 @@ private fun HomeContent(
                 },
                 categories = categories,
                 state = categoriesState,
-                buttonString = uiState.ui.apply
+                buttonString = uiState.ui.apply,
+                deviceSize = deviceSize
             )
         },
         content = {
@@ -378,7 +383,8 @@ fun CategorySheetView(
     isShow: Boolean,
     onCategorySheetDismiss: (List<Photo>) -> Unit,
     categories: List<Photo>,
-    state: Map<String, Boolean>
+    state: Map<String, Boolean>,
+    deviceSize: Size
 ) {
     if (isShow) {
         val scope = rememberCoroutineScope()
@@ -389,6 +395,7 @@ fun CategorySheetView(
             skipPartiallyExpanded = true
         )
         ModalBottomSheet(
+            sheetMaxWidth = deviceSize.width.dp,
             sheetState = sheetState,
             dragHandle = {
                 BottomSheetDefaults.DragHandle(

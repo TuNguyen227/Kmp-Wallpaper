@@ -10,6 +10,7 @@ import com.nmt.kmpcore.presentation.navigation.RootComponent
 import com.nmt.kmpwallpaper.data.createDataStore
 import com.nmt.kmpwallpaper.data.imageRepository.ImageRepository
 import com.nmt.kmpwallpaper.di.KoinManager
+import com.nmt.kmpwallpaper.infrastructure.resolution.getDeviceSize
 import com.nmt.kmpwallpaper.infrastructure.wallpaper.WallpaperManager
 import com.nmt.kmpwallpaper.presentation.AppHost
 import com.nmt.kmpwallpaper.presentation.Child
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
         Firebase.initialize(this)
         val dataStore = createDataStore(this)
         WallpaperManager.initialize(this)
+        val deviceSize = getDeviceSize(this)
         val koin = KoinManager.koin ?: KoinManager.initKoin()
         val root = retainedComponent {
             RootComponent(
@@ -68,7 +70,7 @@ class MainActivity : ComponentActivity() {
             )
         }
         setContent {
-            AppHost(root)
+            AppHost(root,deviceSize)
         }
     }
 }

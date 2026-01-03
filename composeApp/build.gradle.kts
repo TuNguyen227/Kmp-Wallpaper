@@ -81,12 +81,21 @@ android {
     namespace = "com.nmt.kmpwallpaper"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("../wallyart.keystore")
+            storePassword = "123456"
+            keyAlias = "wallyart"
+            keyPassword = "123456"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.nmt.kmpwallpaper"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.2"
     }
     packaging {
         resources {
@@ -95,7 +104,12 @@ android {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
