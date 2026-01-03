@@ -1,22 +1,24 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import kotlin.math.exp
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    kotlin("plugin.serialization") version "2.1.10"
+    id("com.google.gms.google-services") version "4.4.2"
 }
 
 kotlin {
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-    
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
     listOf(
         iosX64(),
         iosArm64(),
@@ -25,6 +27,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            export(projects.kmpCore.coreLibrary)
         }
     }
     
@@ -33,20 +36,37 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.common.ktx)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
-            implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
 
-            implementation(projects.kmpCore.coreLibrary)
-            implementation(coreLibs.navigation.decompose)
-            implementation(libs.decompose.jetbrains)
+            api(projects.kmpCore.coreLibrary)
+            implementation(libs.decompose.coroutines)
+            implementation(libs.firebase.database)
+            implementation(libs.firebase.common)
+            implementation(libs.platform.kore)
+            implementation(libs.coil.compose)
+            implementation(libs.decompose.mvi)
+            implementation(libs.decompose.router)
+            implementation(libs.coil.network.ktor3)
+            implementation(coreLibs.kotlin.serialization)
+            implementation(libs.paging.compose.common)
+            implementation(libs.paging.common)
+            implementation(libs.datastore.preferences)
+            implementation(libs.datastore)
+        }
+    }
+
+    targets.configureEach {
+        compilations.configureEach {
+            compilerOptions.configure {
+                freeCompilerArgs.addAll("-Xexpect-actual-classes")
+            }
         }
     }
 }
@@ -61,12 +81,21 @@ android {
     namespace = "com.nmt.kmpwallpaper"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("../wallyart.keystore")
+            storePassword = "123456"
+            keyAlias = "wallyart"
+            keyPassword = "123456"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.nmt.kmpwallpaper"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.2"
     }
     packaging {
         resources {
@@ -75,16 +104,17 @@ android {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-}
-
-dependencies {
-    debugImplementation(compose.uiTooling)
 }
 
