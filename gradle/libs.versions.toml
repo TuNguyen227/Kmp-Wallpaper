@@ -1,0 +1,62 @@
+[versions]
+agp = "8.8.2"
+android-compileSdk = "35"
+android-minSdk = "25"
+android-targetSdk = "35"
+androidx-activityCompose = "1.9.3"
+appRating = "1.0.1"
+coilCompose = "3.1.0"
+compose-multiplatform = "1.7.3"
+firebaseBom = "33.11.0"
+firebaseCommon = "1.8.1"
+firebaseCommonKtx = "21.0.0"
+firebaseDatabase = "2.1.0"
+kotlin = "2.3.0"
+decompose-coroutines = "2.5.0"
+google-service = "4.4.2"
+pagingComposeCommon = "3.3.0-alpha02-0.5.1"
+platform-kore = "0.1.0"
+mvi = "4.3.0"
+decompose-router = "0.9.0"
+datastore = "1.1.6"
+compottie="2.0.2"
+basic = "+" # gets the latest version
+google-play-services-ads = "+" # you did this during the preparation step
+ktlint = "14.0.1"
+
+[libraries]
+app-rating = { module = "com.stevdza-san:app-rating", version.ref = "appRating" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
+decompose-router = { module = "io.github.xxfast:decompose-router", version.ref = "decompose-router"}
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
+decompose-coroutines = { module = "com.arkivanov.essenty:lifecycle-coroutines", version.ref = "decompose-coroutines"}
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-common = { module = "dev.gitlive:firebase-common", version.ref = "firebaseCommon" }
+firebase-common-ktx = { module = "com.google.firebase:firebase-common-ktx", version.ref = "firebaseCommonKtx" }
+firebase-database = { module = "dev.gitlive:firebase-database", version.ref = "firebaseDatabase" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+paging-common = { module = "app.cash.paging:paging-common", version.ref = "pagingComposeCommon" }
+paging-compose-common = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingComposeCommon" }
+platform-kore = { module = "io.github.tunguyen227:platformkore", version.ref = "platform-kore"}
+decompose-mvi = { module = "com.arkivanov.mvikotlin:mvikotlin", version.ref = 'mvi'}
+datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
+compottie-lite = { module = "io.github.alexzhirkevich:compottie-lite", version.ref = "compottie" }
+compottie-dot = { module = "io.github.alexzhirkevich:compottie-dot", version.ref = "compottie" }
+compottie-network = { module = "io.github.alexzhirkevich:compottie-network", version.ref = "compottie" }
+compottie-resources = { module = "io.github.alexzhirkevich:compottie-resources", version.ref = "compottie" }
+basic-ads = { module = "app.lexilabs.basic:basic-ads", version.ref = "basic"}
+google-play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "google-play-services-ads"}
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+google-service = { id = "com.google.gms.google-services", version.ref = "google-service"}
+ktlint = { id = "org.jlleitschuh.gradle.ktlint" , version.ref = "ktlint"}
+
+[bundles]
+compotie = ["compottie","compottie-lite","compottie-dot","compottie-resources"]
