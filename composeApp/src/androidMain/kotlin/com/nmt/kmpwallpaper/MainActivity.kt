@@ -3,42 +3,93 @@ package com.nmt.kmpwallpaper
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import com.arkivanov.decompose.retainedComponent
-import com.nmt.kmpcore.presentation.navigation.Configuration
+import com.google.firebase.Firebase
+import com.google.firebase.initialize
 import com.nmt.kmpcore.presentation.navigation.RootComponent
+import com.nmt.kmpwallpaper.data.createDataStore
+import com.nmt.kmpwallpaper.data.imageRepository.ImageRepository
+import com.nmt.kmpwallpaper.di.KoinManager
+import com.nmt.kmpwallpaper.infrastructure.intenthandler.IntentHandler
+import com.nmt.kmpwallpaper.infrastructure.resolution.getDeviceSize
+import com.nmt.kmpwallpaper.infrastructure.wallpaper.WallpaperManager
+import com.nmt.kmpwallpaper.model.IntentEvent
 import com.nmt.kmpwallpaper.presentation.AppHost
 import com.nmt.kmpwallpaper.presentation.Child
+import com.nmt.kmpwallpaper.presentation.ChildConfiguration
+import com.nmt.kmpwallpaper.presentation.flash.FlashComponent
 import com.nmt.kmpwallpaper.presentation.home.HomeComponent
-import com.nmt.kmpwallpaper.presentation.home.HomeScreen
+import com.nmt.kmpwallpaper.presentation.photodetail.PhotoDetailComponent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val root = retainedComponent {
-            RootComponent(
-                componentContext = it,
-                screenFactory = { config, context ->
-                    when(config) {
-                        Configuration.HomeScreen -> {
-                            Child.Home(
-                                HomeComponent(
-                                    context
+        Firebase.initialize(this)
+        val dataStore = createDataStore(this)
+        WallpaperManager.initialize(this)
+        val deviceSize = getDeviceSize(this)
+        val koin = KoinManager.koin ?: KoinManager.initKoin()
+        val root =
+            retainedComponent {
+                RootComponent(
+                    componentContext = it,
+                    initialConfiguration = ChildConfiguration.Flash,
+                    screenFactory = { config, context ->
+                        when (config) {
+                            ChildConfiguration.Home -> {
+                                Child.Home(
+                                    HomeComponent(
+                                        componentContext = context,
+                                        imageRepository = koin.get<ImageRepository>(),
+                                        changeLanguageUseCase = koin.get(),
+                                        dataStore = dataStore,
+                                    ),
                                 )
-                            )
+                            }
+                            ChildConfiguration.Flash -> {
+                                Child.FlashScreen(
+                                    FlashComponent(
+                                        componentContext = context,
+                                        dataStore = dataStore,
+                                    ),
+                                )
+                            }
+                            is ChildConfiguration.PhotoDetail -> {
+                                Child.PhotoDetail(
+                                    PhotoDetailComponent(
+                                        componentContext = context,
+                                    ),
+                                    photo = config.data,
+                                )
+                            }
+                            else ->
+                                Child.FlashScreen(
+                                    FlashComponent(
+                                        componentContext = context,
+                                        dataStore = dataStore,
+                                    ),
+                                )
                         }
-                    }
-                }
-            )
-        }
+                    },
+                )
+            }
         setContent {
-            AppHost(root)
+            AppHost(root, deviceSize, { it ->
+                when (it) {
+                    IntentEvent.OPEN_PRIVACY -> {
+                        IntentHandler.openUri(this, IntentEvent.OPEN_PRIVACY.link)
+                    }
+                    IntentEvent.OPEN_TERM_OF_USE -> {
+                        IntentHandler.openUri(this, IntentEvent.OPEN_TERM_OF_USE.link)
+                    }
+                    else -> {}
+                }
+            })
         }
     }
-}
 
-@Preview
-@Composable
-fun AppAndroidPreview() {
+    override fun onDestroy() {
+        super.onDestroy()
+        WallpaperManager.clear(null)
+    }
 }

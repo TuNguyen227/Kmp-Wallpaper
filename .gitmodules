@@ -1,3 +1,4 @@
 [submodule "Kmp-Core"]
 	path = Kmp-Core
-	url = https://github.com/TuNguyen227/Kmp-Core.git
+	url = git@github.com:TuNguyen227/Kmp-Core.git
+	branch = main
